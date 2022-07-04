@@ -64,6 +64,13 @@ definitions:
       statusCode:
         type: integer
     type: object
+  util.GetAllResponseType:
+    properties:
+      models:
+        type: any
+      rowCount:
+        type: integer
+    type: object
   util.PostResponseModel:
     properties:
       _id:
@@ -107,9 +114,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/entity.User'
-            type: array
+            $ref: '#/definitions/util.GetAllResponseType'
         "400":
           description: Bad Request
           schema:
@@ -225,6 +230,40 @@ paths:
           schema:
             $ref: '#/definitions/util.Error'
       summary: Show a user
+      tags:
+      - users
+  /api/users/isExist/{id}:
+    get:
+      consumes:
+      - application/json
+      description: UserIfExistById - Validation endpoint for ticket post.
+      parameters:
+      - description: loginRequestModel
+        in: body
+        name: loginRequestModel
+        required: true
+        schema:
+          $ref: '#/definitions/entity.LoginRequestModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: UserIfExistById
       tags:
       - users
   /api/users/login:

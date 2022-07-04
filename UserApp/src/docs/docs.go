@@ -64,10 +64,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.User"
-                            }
+                            "$ref": "#/definitions/util.GetAllResponseType"
                         }
                     },
                     "400": {
@@ -124,6 +121,58 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/util.PostResponseModel"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/isExist/{id}": {
+            "get": {
+                "description": "UserIfExistById - Validation endpoint for ticket post.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "UserIfExistById",
+                "parameters": [
+                    {
+                        "description": "loginRequestModel",
+                        "name": "loginRequestModel",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.LoginRequestModel"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "boolean"
                         }
                     },
                     "400": {
@@ -394,6 +443,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "statusCode": {
+                    "type": "integer"
+                }
+            }
+        },
+        "util.GetAllResponseType": {
+            "type": "object",
+            "properties": {
+                "models": {
+                    "type": "any"
+                },
+                "rowCount": {
                     "type": "integer"
                 }
             }

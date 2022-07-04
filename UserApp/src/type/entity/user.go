@@ -40,15 +40,6 @@ type UserPostRequestModel struct {
 	Age      int32  `json:"age,omitempty"`
 }
 
-type UserPostResponseModel struct {
-	Id string `json:"_id" bson:"_id,omitempty"`
-}
-
-type UserGetResponseModel struct {
-	RowCount int64  `json:"rowCount"`
-	Users    []User `json:"users"`
-}
-
 type LoginRequestModel struct {
 	Username string  `json:"username"`
 	Password *string `json:"password"`

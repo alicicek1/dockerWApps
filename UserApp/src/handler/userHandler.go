@@ -120,7 +120,7 @@ func (h *UserHandler) UserDeleteById(ctx echo.Context) error {
 
 	res, errSrv := h.userService.UserServiceDeleteById(id)
 	if errSrv != nil {
-		return ctx.JSON(errSrv.ErrorCode, errSrv)
+		return ctx.JSON(errSrv.StatusCode, errSrv)
 	}
 
 	return ctx.JSON(http.StatusOK, res)
@@ -133,7 +133,7 @@ func (h *UserHandler) UserDeleteById(ctx echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param filter query util.Filter true "filter"
-// @Success 200 {object} []entity.User
+// @Success 200 {object} util.GetAllResponseType
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error
 // @Failure 500 {object} util.Error
@@ -184,7 +184,7 @@ func (h *UserHandler) UserGetAll(ctx echo.Context) error {
 		return ctx.JSON(err.StatusCode, err)
 	}
 
-	if res.Users == nil {
+	if res.Models == nil {
 		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("user handler").ModifyErrorCode(5001))
 	}
 	ctx.Response().Header().Add("x-total-count", strconv.FormatInt(res.RowCount, 10))
@@ -227,4 +227,34 @@ func (h *UserHandler) Login(ctx echo.Context) error {
 		Expires: result.ExpiresDate,
 	})
 	return ctx.JSON(http.StatusCreated, result)
+}
+
+// UserIfExistById godoc
+// @Summary UserIfExistById
+// @Description UserIfExistById - Validation endpoint for ticket post.
+// @Tags users
+// @Accept json
+// @Produce json
+// @Param loginRequestModel body entity.LoginRequestModel true "loginRequestModel"
+// @Success 200 {object} bool
+// @Failure 400 {object} util.Error
+// @Failure 404 {object} util.Error
+// @Failure 500 {object} util.Error
+// @Router /api/users/isExist/{id} [get]
+func (h *UserHandler) UserIfExistById(ctx echo.Context) error {
+	id := ctx.Param("id")
+	if id == "" {
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4013))
+	}
+
+	if !util.IsValidUUID(id) {
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4014))
+	}
+
+	res, errSrv := h.userService.UserIfExistById(id)
+	if errSrv != nil {
+		return ctx.JSON(errSrv.StatusCode, errSrv)
+	}
+
+	return ctx.JSON(http.StatusOK, res)
 }

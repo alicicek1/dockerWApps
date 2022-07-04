@@ -1,4 +1,4 @@
-package entity
+package categoryType
 
 import "time"
 
@@ -11,13 +11,4 @@ type Category struct {
 
 type CategoryPostRequestModel struct {
 	Name string `json:"name,omitempty"`
-}
-
-type CategoryPostResponseModel struct {
-	Id string `json:"_id" bson:"_id,omitempty"`
-}
-
-type CategoryGetResponseModel struct {
-	RowCount   int64      `json:"rowCount"`
-	Categories []Category `json:"categories"`
 }

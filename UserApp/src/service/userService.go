@@ -18,14 +18,15 @@ func NewUserService(r userRepository.UserRepository) UserServiceType {
 }
 
 type UserService interface {
-	UserServiceInsert(user userEntity.User) (*userEntity.UserPostResponseModel, *util.Error)
+	UserServiceInsert(user userEntity.User) (*util.PostResponseModel, *util.Error)
 	UserServiceGetById(id string) (*userEntity.User, *util.Error)
 	UserServiceDeleteById(id string) (util.DeleteResponseType, *util.Error)
-	UserServiceGetAll(filter util.Filter) (*userEntity.UserGetResponseModel, *util.Error)
+	UserServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error)
 	UserServiceLogin(loginRequestModel userEntity.LoginRequestModel) (*userEntity.LoginResponseModel, *util.Error)
+	UserIfExistById(id string) (bool, *util.Error)
 }
 
-func (u UserServiceType) UserServiceInsert(user userEntity.User) (*userEntity.UserPostResponseModel, *util.Error) {
+func (u UserServiceType) UserServiceInsert(user userEntity.User) (*util.PostResponseModel, *util.Error) {
 	if user.Id == "" {
 		isSuccess, err := util.CheckUserModel(user)
 		if !isSuccess {
@@ -62,7 +63,7 @@ func (u UserServiceType) UserServiceDeleteById(id string) (util.DeleteResponseTy
 	}
 	return util.DeleteResponseType{IsSuccess: true}, nil
 }
-func (u UserServiceType) UserServiceGetAll(filter util.Filter) (*userEntity.UserGetResponseModel, *util.Error) {
+func (u UserServiceType) UserServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error) {
 	result, err := u.UserRepository.UserRepositoryGetAll(filter)
 	if err != nil {
 		return nil, err
@@ -82,4 +83,12 @@ func (u UserServiceType) UserServiceLogin(loginRequestModel userEntity.LoginRequ
 	}
 
 	return res, nil
+}
+
+func (u UserServiceType) UserIfExistById(id string) (bool, *util.Error) {
+	result, err := u.UserRepository.UserIfExistById(id)
+	if err != nil {
+		return false, err
+	}
+	return result, nil
 }

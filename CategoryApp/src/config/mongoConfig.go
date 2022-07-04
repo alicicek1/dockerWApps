@@ -1,4 +1,4 @@
-package ticketConfig
+package categoryConfig
 
 import (
 	"fmt"

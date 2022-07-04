@@ -44,6 +44,11 @@ func (e *Error) ModifyOperation(operation string) *Error {
 	return e
 }
 
+func (e *Error) ModifyStatusCode(code int) *Error {
+	e.StatusCode = code
+	return e
+}
+
 var (
 	UnKnownError           = NewError("-", "-", "An unknown error occurred.", 1, -1)
 	PathVariableNotFound   = NewError("", "GET", "Path variable not found.", http.StatusBadRequest, -1)

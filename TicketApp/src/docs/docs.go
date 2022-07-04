@@ -25,220 +25,6 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/categories": {
-            "get": {
-                "description": "Get list of categories",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "categories"
-                ],
-                "summary": "Get list of categories",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "name": "pageSize",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "name": "sortingDirection",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "sortingField",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.Category"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Insert a category by requested body",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "categories"
-                ],
-                "summary": "Insert a category",
-                "parameters": [
-                    {
-                        "description": "categoryPostRequestModel",
-                        "name": "categoryPostRequestModel",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entity.CategoryPostRequestModel"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.CategoryPostResponseModel"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/categories/{id}": {
-            "get": {
-                "description": "get string by ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "categories"
-                ],
-                "summary": "Show a category",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/entity.Category"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Delete a category by id",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "categories"
-                ],
-                "summary": "Delete a category",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/util.DeleteResponseType"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/util.Error"
-                        }
-                    }
-                }
-            }
-        },
         "/api/tickets": {
             "get": {
                 "description": "Get list of tickets",
@@ -278,10 +64,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/entity.Ticket"
-                            }
+                            "$ref": "#/definitions/util.GetAllResponseType"
                         }
                     },
                     "400": {
@@ -331,7 +114,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entity.TicketPostResponseModel"
+                            "$ref": "#/definitions/util.PostResponseModel"
                         }
                     },
                     "400": {
@@ -489,39 +272,6 @@ const docTemplate = `{
                 }
             }
         },
-        "entity.Category": {
-            "type": "object",
-            "properties": {
-                "_id": {
-                    "type": "string"
-                },
-                "createdAt": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.CategoryPostRequestModel": {
-            "type": "object",
-            "properties": {
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.CategoryPostResponseModel": {
-            "type": "object",
-            "properties": {
-                "_id": {
-                    "type": "string"
-                }
-            }
-        },
         "entity.Ticket": {
             "type": "object",
             "properties": {
@@ -543,8 +293,8 @@ const docTemplate = `{
                 "body": {
                     "type": "string"
                 },
-                "category": {
-                    "$ref": "#/definitions/entity.Category"
+                "categoryId": {
+                    "type": "string"
                 },
                 "createdAt": {
                     "type": "string"
@@ -584,8 +334,8 @@ const docTemplate = `{
                 "body": {
                     "type": "string"
                 },
-                "category": {
-                    "$ref": "#/definitions/entity.Category"
+                "categoryId": {
+                    "type": "string"
                 },
                 "createdBy": {
                     "type": "string"
@@ -597,14 +347,6 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "subject": {
-                    "type": "string"
-                }
-            }
-        },
-        "entity.TicketPostResponseModel": {
-            "type": "object",
-            "properties": {
-                "_id": {
                     "type": "string"
                 }
             }
@@ -636,6 +378,25 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "util.GetAllResponseType": {
+            "type": "object",
+            "properties": {
+                "models": {
+                    "type": "any"
+                },
+                "rowCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "util.PostResponseModel": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                }
+            }
         }
     }
 }`
@@ -644,9 +405,9 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "user.swagger.io",
-	BasePath:         "/api/",
+	BasePath:         "/api/tickets",
 	Schemes:          []string{},
-	Title:            "Swagger Ticket & Category API",
+	Title:            "Swagger Ticket API",
 	Description:      "This is a sample ticket & category API server.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

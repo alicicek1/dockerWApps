@@ -11,7 +11,7 @@ import (
 	"log"
 )
 
-// @title Swagger Ticket & Category API
+// @title Swagger Ticket API
 // @version 1.0
 // @description This is a sample ticket & category API server.
 // @termsOfService http://swagger.io/terms/
@@ -24,7 +24,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host user.swagger.io
-// @BasePath /api/
+// @BasePath /api/tickets
 func main() {
 	mCfg := ticketConfig.NewMongoConfig()
 	client, _, cancel, cfg := mCfg.ConnectDatabase()
@@ -32,17 +32,6 @@ func main() {
 
 	e := echo.New()
 	//e.HTTPErrorHandler = util.NewHttpErrorHandler(util.NewErrorStatusCodeMaps()).Handler
-
-	categoryCollection := mCfg.GetCollection(client, cfg.CategoryColName)
-	categoryRepository := repository.NewCategoryRepository(categoryCollection)
-	categoryService := service.NewCategoryService(categoryRepository)
-	categoryHandler := handler.NewCategoryHandler(categoryService, cfg)
-	categoryGroup := e.Group("/api/categories")
-	categoryGroup.GET("/:id", categoryHandler.CategoryGetById)
-	categoryGroup.GET("", categoryHandler.CategoryGetAll)
-	categoryGroup.POST("", categoryHandler.CategoryInsert)
-	categoryGroup.DELETE("/:id", categoryHandler.CategoryDeleteById)
-	//categoryGroup.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	ticketCollection := mCfg.GetCollection(client, cfg.TicketColName)
 	ticketRepository := repository.NewTicketRepository(ticketCollection)
@@ -56,5 +45,5 @@ func main() {
 	//ticketGroup.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	log.Fatal(e.Start(":8084"))
+	log.Fatal(e.Start(":8082"))
 }

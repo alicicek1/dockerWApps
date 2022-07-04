@@ -22,7 +22,7 @@ func (t TicketStatus) String() string {
 }
 
 type Ticket struct {
-	Category       Category     `json:"category,omitempty" bson:"category,omitempty"`
+	CategoryId     string       `json:"categoryId,omitempty" bson:"categoryId,omitempty"`
 	Attachments    []Attachment `json:"attachments,omitempty" bson:"attachments,omitempty"`
 	Answers        []Answer     `json:"answers,omitempty" bson:"answers,omitempty"`
 	Id             string       `json:"_id" bson:"_id,omitempty"`
@@ -36,7 +36,7 @@ type Ticket struct {
 }
 
 type TicketPostRequestModel struct {
-	Category       Category     `json:"category,omitempty"`
+	CategoryId     string       `json:"categoryId,omitempty"`
 	Attachments    []Attachment `json:"attachments,omitempty"`
 	Answers        []Answer     `json:"answers,omitempty"`
 	Subject        string       `json:"subject,omitempty"`
@@ -44,13 +44,4 @@ type TicketPostRequestModel struct {
 	CreatedBy      string       `json:"createdBy,omitempty"`
 	LastAnsweredAt time.Time    `json:"lastAnsweredAt,omitempty"`
 	Status         byte         `json:"status,omitempty,"`
-}
-
-type TicketPostResponseModel struct {
-	Id string `json:"_id" bson:"_id,omitempty"`
-}
-
-type TicketGetReponseModel struct {
-	RowCount int64    `json:"rowCount"`
-	Tickets  []Ticket `json:"tickets"`
 }

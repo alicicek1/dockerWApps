@@ -10,5 +10,5 @@ type PostResponseModel struct {
 
 type GetAllResponseType struct {
 	RowCount int64 `json:"rowCount"`
-	models   []any `json:"models"`
+	Models   any   `json:"models"`
 }

@@ -3,8 +3,8 @@ package handler
 import (
 	ticketConfig "TicketApp/src/config"
 	"TicketApp/src/service"
-	entity2 "TicketApp/src/type/entity"
-	util2 "TicketApp/src/type/util"
+	"TicketApp/src/type/entity"
+	"TicketApp/src/type/util"
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"net/http"
@@ -36,16 +36,16 @@ func (h *TicketHandler) TicketGetById(ctx echo.Context) error {
 	id := ctx.Param("id")
 
 	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util2.PathVariableNotFound.ModifyApplicationName("ticket handler").ModifyErrorCode(4018))
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("ticket handler").ModifyErrorCode(4018))
 	}
 
-	if !util2.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util2.PathVariableIsNotValid.ModifyApplicationName("ticket handler").ModifyErrorCode(4019))
+	if !util.IsValidUUID(id) {
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("ticket handler").ModifyErrorCode(4019))
 	}
 
 	ticket, errSrv := h.ticketService.TicketServiceGetById(id)
 	if errSrv != nil || ticket == nil {
-		return ctx.JSON(http.StatusNotFound, util2.NotFound.ModifyApplicationName("category handler").ModifyErrorCode(4018))
+		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("category handler").ModifyErrorCode(4018))
 	}
 
 	return ctx.JSON(http.StatusOK, ticket)
@@ -58,20 +58,20 @@ func (h *TicketHandler) TicketGetById(ctx echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param ticketPostRequestModel body entity.TicketPostRequestModel true "ticketPostRequestModel"
-// @Success 200 {object} entity.TicketPostResponseModel
+// @Success 200 {object} util.PostResponseModel
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error
 // @Failure 500 {object} util.Error
 // @Router /api/tickets [post]
 func (h *TicketHandler) TicketInsert(ctx echo.Context) error {
-	ticketPostRequestModel := entity2.TicketPostRequestModel{}
+	ticketPostRequestModel := entity.TicketPostRequestModel{}
 
 	err := json.NewDecoder(ctx.Request().Body).Decode(&ticketPostRequestModel)
 	if err != nil {
-		return ctx.JSON(http.StatusBadRequest, util2.InvalidBody.ModifyApplicationName("category handler").ModifyErrorCode(4022).ModifyOperation("POST"))
+		return ctx.JSON(http.StatusBadRequest, util.InvalidBody.ModifyApplicationName("category handler").ModifyErrorCode(4022).ModifyOperation("POST"))
 	}
-	category := entity2.Ticket{
-		Category:       ticketPostRequestModel.Category,
+	category := entity.Ticket{
+		CategoryId:     ticketPostRequestModel.CategoryId,
 		Attachments:    ticketPostRequestModel.Attachments,
 		Answers:        ticketPostRequestModel.Answers,
 		Subject:        ticketPostRequestModel.Subject,
@@ -80,7 +80,7 @@ func (h *TicketHandler) TicketInsert(ctx echo.Context) error {
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 		LastAnsweredAt: time.Now(),
-		Status:         byte(entity2.CREATED),
+		Status:         byte(entity.CREATED),
 	}
 
 	res, errSrv := h.ticketService.TicketServiceInsert(category)
@@ -105,16 +105,16 @@ func (h *TicketHandler) TicketInsert(ctx echo.Context) error {
 func (h *TicketHandler) TicketDeleteById(ctx echo.Context) error {
 	id := ctx.Param("id")
 	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util2.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4020))
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4020))
 	}
 
-	if !util2.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util2.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4021))
+	if !util.IsValidUUID(id) {
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4021))
 	}
 
 	res, errSrv := h.ticketService.TicketServiceDeleteById(id)
 	if errSrv != nil {
-		return ctx.JSON(errSrv.ErrorCode, errSrv)
+		return ctx.JSON(errSrv.StatusCode, errSrv)
 	}
 
 	return ctx.JSON(http.StatusOK, res)
@@ -127,18 +127,18 @@ func (h *TicketHandler) TicketDeleteById(ctx echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param filter query util.Filter true "filter"
-// @Success 200 {object} []entity.Ticket
+// @Success 200 {object} util.GetAllResponseType
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error
 // @Failure 500 {object} util.Error
 // @Router /api/tickets [get]
 func (h *TicketHandler) TicketGetAll(ctx echo.Context) error {
-	filter := util2.Filter{}
-	page, pageSize := util2.ValidatePaginationFilters(ctx.QueryParam("page"), ctx.QueryParam("pageSize"), h.cfg.MaxPageLimit)
+	filter := util.Filter{}
+	page, pageSize := util.ValidatePaginationFilters(ctx.QueryParam("page"), ctx.QueryParam("pageSize"), h.cfg.MaxPageLimit)
 	filter.Page = page
 	filter.PageSize = pageSize
 
-	sortingField, sortingDirection := util2.ValidateSortingFilters(entity2.Category{}, ctx.QueryParam("sort"), ctx.QueryParam("sDirection"))
+	sortingField, sortingDirection := util.ValidateSortingFilters(entity.Ticket{}, ctx.QueryParam("sort"), ctx.QueryParam("sDirection"))
 	filter.SortingField = sortingField
 	filter.SortingDirection = sortingDirection
 
@@ -150,7 +150,7 @@ func (h *TicketHandler) TicketGetAll(ctx echo.Context) error {
 	}
 
 	if tickets == nil {
-		return ctx.JSON(http.StatusNotFound, util2.NotFound.ModifyApplicationName("user handler").ModifyErrorCode(5001))
+		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("user handler").ModifyErrorCode(5001))
 	}
 	return ctx.JSON(http.StatusOK, tickets)
 }

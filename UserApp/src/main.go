@@ -44,6 +44,7 @@ func main() {
 	userGroup.POST("", userHandler.UserUpsert)
 	userGroup.POST("/login", userHandler.Login)
 	userGroup.DELETE("/:id", userHandler.UserDeleteById)
+	userGroup.GET("/isExist/:id", userHandler.UserIfExistById)
 
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	log.Fatal(e.Start(":8083"))

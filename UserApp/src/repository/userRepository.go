@@ -21,14 +21,15 @@ func NewUserRepository(userCollection *mongo.Collection) UserRepositoryType {
 }
 
 type UserRepository interface {
-	UserRepoInsert(user userEntity.User) (*userEntity.UserPostResponseModel, *util.Error)
+	UserRepoInsert(user userEntity.User) (*util.PostResponseModel, *util.Error)
 	UserRepoGetById(id string) (*userEntity.User, *util.Error)
 	UserRepoDeleteById(id string) (util.DeleteResponseType, *util.Error)
-	UserRepositoryGetAll(filter util.Filter) (*userEntity.UserGetResponseModel, *util.Error)
+	UserRepositoryGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error)
 	UserRepositoryFindByUsernameAndPassword(model userEntity.LoginRequestModel) (*userEntity.User, *util.Error)
+	UserIfExistById(id string) (bool, *util.Error)
 }
 
-func (u UserRepositoryType) UserRepoInsert(user userEntity.User) (*userEntity.UserPostResponseModel, *util.Error) {
+func (u UserRepositoryType) UserRepoInsert(user userEntity.User) (*util.PostResponseModel, *util.Error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
@@ -39,7 +40,7 @@ func (u UserRepositoryType) UserRepoInsert(user userEntity.User) (*userEntity.Us
 	if err != nil {
 		return nil, util.UpsertFailed.ModifyApplicationName("user repository").ModifyErrorCode(4015)
 	}
-	return &userEntity.UserPostResponseModel{Id: user.Id}, nil
+	return &util.PostResponseModel{Id: user.Id}, nil
 }
 func (u UserRepositoryType) UserRepoGetById(id string) (*userEntity.User, *util.Error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -63,7 +64,7 @@ func (u UserRepositoryType) UserRepoDeleteById(id string) (util.DeleteResponseTy
 	}
 	return util.DeleteResponseType{IsSuccess: true}, nil
 }
-func (u UserRepositoryType) UserRepositoryGetAll(filter util.Filter) (*userEntity.UserGetResponseModel, *util.Error) {
+func (u UserRepositoryType) UserRepositoryGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
@@ -85,9 +86,9 @@ func (u UserRepositoryType) UserRepositoryGetAll(filter util.Filter) (*userEntit
 	if err != nil {
 		return nil, util.UnKnownError.ModifyApplicationName("user repository").ModifyOperation("GET").ModifyDescription(err.Error()).ModifyErrorCode(4045)
 	}
-	return &userEntity.UserGetResponseModel{
+	return &util.GetAllResponseType{
 		RowCount: totalCount,
-		Users:    users,
+		Models:   users,
 	}, nil
 }
 func (u UserRepositoryType) UserRepositoryFindByUsernameAndPassword(model userEntity.LoginRequestModel) (*userEntity.User, *util.Error) {
@@ -104,4 +105,20 @@ func (u UserRepositoryType) UserRepositoryFindByUsernameAndPassword(model userEn
 		return nil, util.NewError("user repository", "LOGIN", "There is no user with provided information.", http.StatusNotFound, 4056)
 	}
 	return &user, nil
+}
+
+func (u UserRepositoryType) UserIfExistById(id string) (bool, *util.Error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+
+	count, err := u.UserCollection.CountDocuments(ctx, bson.M{"_id": id})
+	if err != nil {
+		return false, util.UnKnownError.ModifyApplicationName("User Repository").ModifyOperation("Count document by id").ModifyDescription(err.Error()).ModifyErrorCode(3032).ModifyStatusCode(http.StatusBadRequest)
+	}
+
+	if count > 0 {
+		return true, nil
+	}
+
+	return false, util.UnKnownError.ModifyApplicationName("User Repository").ModifyOperation("Count document by id").ModifyDescription("There is no user with provided identified.").ModifyErrorCode(3033).ModifyStatusCode(http.StatusBadRequest)
 }

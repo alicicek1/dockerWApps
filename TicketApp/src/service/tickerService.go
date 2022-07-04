@@ -3,7 +3,7 @@ package service
 import (
 	"TicketApp/src/repository"
 	"TicketApp/src/type/entity"
-	util2 "TicketApp/src/type/util"
+	"TicketApp/src/type/util"
 	"github.com/google/uuid"
 	"time"
 )
@@ -13,19 +13,19 @@ type TicketServiceType struct {
 }
 
 type TicketService interface {
-	TicketServiceInsert(user entity.Ticket) (*entity.TicketPostResponseModel, *util2.Error)
-	TicketServiceGetById(id string) (*entity.Ticket, *util2.Error)
-	TicketServiceDeleteById(id string) (util2.DeleteResponseType, *util2.Error)
-	TicketServiceGetAll(filter util2.Filter) (*entity.TicketGetReponseModel, *util2.Error)
+	TicketServiceInsert(user entity.Ticket) (*util.PostResponseModel, *util.Error)
+	TicketServiceGetById(id string) (*entity.Ticket, *util.Error)
+	TicketServiceDeleteById(id string) (util.DeleteResponseType, *util.Error)
+	TicketServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error)
 }
 
 func NewTicketService(r repository.TicketRepository) TicketServiceType {
 	return TicketServiceType{TicketRepository: r}
 }
 
-func (t TicketServiceType) TicketServiceInsert(ticket entity.Ticket) (*entity.TicketPostResponseModel, *util2.Error) {
+func (t TicketServiceType) TicketServiceInsert(ticket entity.Ticket) (*util.PostResponseModel, *util.Error) {
 	if ticket.Id == "" {
-		isSuccess, err := util2.CheckTicketModel(ticket)
+		isSuccess, err := util.CheckTicketModel(ticket)
 		if !isSuccess {
 			return nil, err
 		}
@@ -39,21 +39,21 @@ func (t TicketServiceType) TicketServiceInsert(ticket entity.Ticket) (*entity.Ti
 
 	return result, err
 }
-func (t TicketServiceType) TicketServiceGetById(id string) (*entity.Ticket, *util2.Error) {
+func (t TicketServiceType) TicketServiceGetById(id string) (*entity.Ticket, *util.Error) {
 	result, err := t.TicketRepository.TicketRepoGetById(id)
 	if err != nil {
 		return nil, err
 	}
 	return result, nil
 }
-func (t TicketServiceType) TicketServiceDeleteById(id string) (util2.DeleteResponseType, *util2.Error) {
+func (t TicketServiceType) TicketServiceDeleteById(id string) (util.DeleteResponseType, *util.Error) {
 	result, err := t.TicketRepository.TicketRepoDeleteById(id)
 	if err != nil || result.IsSuccess == false {
-		return util2.DeleteResponseType{IsSuccess: false}, err
+		return util.DeleteResponseType{IsSuccess: false}, err
 	}
-	return util2.DeleteResponseType{IsSuccess: true}, nil
+	return util.DeleteResponseType{IsSuccess: true}, nil
 }
-func (t TicketServiceType) TicketServiceGetAll(filter util2.Filter) (*entity.TicketGetReponseModel, *util2.Error) {
+func (t TicketServiceType) TicketServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error) {
 	result, err := t.TicketRepository.TicketRepositoryGetAll(filter)
 	if err != nil {
 		return nil, err

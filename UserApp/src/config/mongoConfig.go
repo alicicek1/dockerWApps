@@ -24,7 +24,7 @@ type AppConfig struct {
 var EnvConfig = map[string]AppConfig{
 	"qa": {
 		Env:             "qa",
-		MongoClientUri:  "mongodb://127.0.0.1:27017",
+		MongoClientUri:  "mongodb://mongo:27017",
 		DBName:          "TicketApp",
 		UserColName:     "User",
 		TicketColName:   "Ticket",

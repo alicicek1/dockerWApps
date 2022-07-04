@@ -1,21 +1,21 @@
-package handler
+package categoryHandler
 
 import (
-	ticketConfig "TicketApp/src/config"
-	"TicketApp/src/service"
-	"TicketApp/src/type/entity"
-	"TicketApp/src/type/util"
+	categoryConfig "CategoryApp/src/config"
+	categoryService "CategoryApp/src/service"
+	categoryType "CategoryApp/src/type"
+	"CategoryApp/src/type/util"
 	"encoding/json"
 	"github.com/labstack/echo/v4"
 	"net/http"
 )
 
 type CategoryHandler struct {
-	categoryService service.CategoryService
-	cfg             *ticketConfig.AppConfig
+	categoryService categoryService.CategoryService
+	cfg             *categoryConfig.AppConfig
 }
 
-func NewCategoryHandler(categoryService service.CategoryService, cfg *ticketConfig.AppConfig) CategoryHandler {
+func NewCategoryHandler(categoryService categoryService.CategoryService, cfg *categoryConfig.AppConfig) CategoryHandler {
 	return CategoryHandler{
 		categoryService: categoryService,
 		cfg:             cfg,
@@ -29,7 +29,7 @@ func NewCategoryHandler(categoryService service.CategoryService, cfg *ticketConf
 // @Accept       json
 // @Produce      json
 // @Param        id   path      string  true  "id"
-// @Success      200  {object}  entity.Category
+// @Success      200  {object}  categoryType.Category
 // @Failure      400  {object}  util.Error
 // @Failure      404  {object}  util.Error
 // @Failure      500  {object}  util.Error
@@ -59,26 +59,26 @@ func (h *CategoryHandler) CategoryGetById(ctx echo.Context) error {
 // @Tags categories
 // @Accept json
 // @Produce json
-// @Param categoryPostRequestModel body entity.CategoryPostRequestModel true "categoryPostRequestModel"
-// @Success 200 {object} entity.CategoryPostResponseModel
+// @Param categoryPostRequestModel body categoryType.CategoryPostRequestModel true "categoryPostRequestModel"
+// @Success 200 {object} util.PostResponseModel
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error
 // @Failure 500 {object} util.Error
 // @Router /api/categories [post]
 func (h *CategoryHandler) CategoryInsert(ctx echo.Context) error {
-	categoryPostRequestModel := entity.CategoryPostRequestModel{}
+	categoryPostRequestModel := categoryType.CategoryPostRequestModel{}
 
 	err := json.NewDecoder(ctx.Request().Body).Decode(&categoryPostRequestModel)
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, util.InvalidBody.ModifyApplicationName("category handler").ModifyErrorCode(4022))
 	}
-	category := entity.Category{
+	category := categoryType.Category{
 		Name: categoryPostRequestModel.Name,
 	}
 
 	res, errSrv := h.categoryService.CategoryServiceInsert(category)
 	if errSrv != nil {
-		return ctx.JSON(errSrv.ErrorCode, errSrv)
+		return ctx.JSON(errSrv.StatusCode, errSrv)
 	}
 	return ctx.JSON(http.StatusOK, res)
 }
@@ -107,7 +107,7 @@ func (h *CategoryHandler) CategoryDeleteById(ctx echo.Context) error {
 
 	res, errSrv := h.categoryService.CategoryServiceDeleteById(id)
 	if errSrv != nil {
-		return ctx.JSON(errSrv.ErrorCode, errSrv)
+		return ctx.JSON(errSrv.StatusCode, errSrv)
 	}
 
 	return ctx.JSON(http.StatusOK, res)
@@ -120,7 +120,7 @@ func (h *CategoryHandler) CategoryDeleteById(ctx echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param filter query util.Filter true "filter"
-// @Success 200 {object} []entity.Category
+// @Success 200 {object} util.GetAllResponseType
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error
 // @Failure 500 {object} util.Error
@@ -131,7 +131,7 @@ func (h *CategoryHandler) CategoryGetAll(ctx echo.Context) error {
 	filter.Page = page
 	filter.PageSize = pageSize
 
-	sortingField, sortingDirection := util.ValidateSortingFilters(entity.Category{}, ctx.QueryParam("sort"), ctx.QueryParam("sDirection"))
+	sortingField, sortingDirection := util.ValidateSortingFilters(categoryType.Category{}, ctx.QueryParam("sort"), ctx.QueryParam("sDirection"))
 	filter.SortingField = sortingField
 	filter.SortingDirection = sortingDirection
 
@@ -150,4 +150,34 @@ func (h *CategoryHandler) CategoryGetAll(ctx echo.Context) error {
 		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("category handler").ModifyErrorCode(5000))
 	}
 	return ctx.JSON(http.StatusOK, categories)
+}
+
+// CategoryIfExistById godoc
+// @Summary      Checks if category exist by id
+// @Description  Checks if category exist by id
+// @Tags         categories
+// @Accept       json
+// @Produce      json
+// @Param        id   path      string  true  "id"
+// @Success      200  {object}  bool
+// @Failure      400  {object}  util.Error
+// @Failure      404  {object}  util.Error
+// @Failure      500  {object}  util.Error
+// @Router       /isExist/{id} [get]
+func (h *CategoryHandler) CategoryIfExistById(ctx echo.Context) error {
+	id := ctx.Param("id")
+	if id == "" {
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4013))
+	}
+
+	if !util.IsValidUUID(id) {
+		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4014))
+	}
+
+	res, errSrv := h.categoryService.CategoryIfExistById(id)
+	if errSrv != nil {
+		return ctx.JSON(errSrv.StatusCode, errSrv)
+	}
+
+	return ctx.JSON(http.StatusOK, res)
 }

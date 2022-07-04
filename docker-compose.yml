@@ -1,6 +1,18 @@
 version: '3.4'
 
 services:
+
+  category_service:
+    container_name: category_service
+    image: category_service
+    build:
+      context: ./CategoryApp
+      dockerfile: ./Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - "Env=qa"
+
   ticket_service:
     container_name: ticket_service
     image: ticket_service
@@ -8,9 +20,9 @@ services:
       context: ./TicketApp
       dockerfile: ./Dockerfile
     ports:
-      - "8084:8084"
+      - "8082:8082"
     environment:
-      - Env=qa
+      - "Env=qa"
 
   user_service:
     container_name: user_service
@@ -21,7 +33,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      - Env=qa
+      - "Env=qa"
     depends_on:
       - mongo
 

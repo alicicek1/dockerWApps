@@ -11,7 +11,7 @@ RUN go build -tags musl -o main .
 WORKDIR /dist
 RUN cp /build/src/main .
 
-EXPOSE 8082
+EXPOSE 8081
 
 CMD ["/dist/main"]
 

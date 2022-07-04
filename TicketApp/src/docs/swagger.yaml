@@ -1,4 +1,4 @@
-basePath: /api/
+basePath: /api/tickets
 definitions:
   entity.Answer:
     properties:
@@ -22,27 +22,6 @@ definitions:
       filePath:
         type: string
     type: object
-  entity.Category:
-    properties:
-      _id:
-        type: string
-      createdAt:
-        type: string
-      name:
-        type: string
-      updatedAt:
-        type: string
-    type: object
-  entity.CategoryPostRequestModel:
-    properties:
-      name:
-        type: string
-    type: object
-  entity.CategoryPostResponseModel:
-    properties:
-      _id:
-        type: string
-    type: object
   entity.Ticket:
     properties:
       _id:
@@ -57,8 +36,8 @@ definitions:
         type: array
       body:
         type: string
-      category:
-        $ref: '#/definitions/entity.Category'
+      categoryId:
+        type: string
       createdAt:
         type: string
       createdBy:
@@ -84,8 +63,8 @@ definitions:
         type: array
       body:
         type: string
-      category:
-        $ref: '#/definitions/entity.Category'
+      categoryId:
+        type: string
       createdBy:
         type: string
       lastAnsweredAt:
@@ -93,11 +72,6 @@ definitions:
       status:
         type: integer
       subject:
-        type: string
-    type: object
-  entity.TicketPostResponseModel:
-    properties:
-      _id:
         type: string
     type: object
   util.DeleteResponseType:
@@ -118,6 +92,18 @@ definitions:
       statusCode:
         type: integer
     type: object
+  util.GetAllResponseType:
+    properties:
+      models:
+        type: any
+      rowCount:
+        type: integer
+    type: object
+  util.PostResponseModel:
+    properties:
+      _id:
+        type: string
+    type: object
 host: user.swagger.io
 info:
   contact:
@@ -129,149 +115,9 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   termsOfService: http://swagger.io/terms/
-  title: Swagger Ticket & Category API
+  title: Swagger Ticket API
   version: "1.0"
 paths:
-  /api/categories:
-    get:
-      consumes:
-      - application/json
-      description: Get list of categories
-      parameters:
-      - in: query
-        name: page
-        type: integer
-      - in: query
-        name: pageSize
-        type: integer
-      - in: query
-        name: sortingDirection
-        type: integer
-      - in: query
-        name: sortingField
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/entity.Category'
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/util.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/util.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.Error'
-      summary: Get list of categories
-      tags:
-      - categories
-    post:
-      consumes:
-      - application/json
-      description: Insert a category by requested body
-      parameters:
-      - description: categoryPostRequestModel
-        in: body
-        name: categoryPostRequestModel
-        required: true
-        schema:
-          $ref: '#/definitions/entity.CategoryPostRequestModel'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.CategoryPostResponseModel'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/util.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/util.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.Error'
-      summary: Insert a category
-      tags:
-      - categories
-  /api/categories/{id}:
-    delete:
-      consumes:
-      - application/json
-      description: Delete a category by id
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/util.DeleteResponseType'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/util.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/util.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.Error'
-      summary: Delete a category
-      tags:
-      - categories
-    get:
-      consumes:
-      - application/json
-      description: get string by ID
-      parameters:
-      - description: id
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/entity.Category'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/util.Error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/util.Error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/util.Error'
-      summary: Show a category
-      tags:
-      - categories
   /api/tickets:
     get:
       consumes:
@@ -296,9 +142,7 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/entity.Ticket'
-            type: array
+            $ref: '#/definitions/util.GetAllResponseType'
         "400":
           description: Bad Request
           schema:
@@ -331,7 +175,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/entity.TicketPostResponseModel'
+            $ref: '#/definitions/util.PostResponseModel'
         "400":
           description: Bad Request
           schema:
