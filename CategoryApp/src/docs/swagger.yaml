@@ -1,0 +1,234 @@
+basePath: /api/categories
+definitions:
+  categoryType.Category:
+    properties:
+      _id:
+        type: string
+      createdAt:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  categoryType.CategoryPostRequestModel:
+    properties:
+      name:
+        type: string
+    type: object
+  util.DeleteResponseType:
+    properties:
+      isSuccess:
+        type: boolean
+    type: object
+  util.Error:
+    properties:
+      applicationName:
+        type: string
+      description:
+        type: string
+      errorCode:
+        type: integer
+      operation:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  util.GetAllResponseType:
+    properties:
+      models:
+        type: any
+      rowCount:
+        type: integer
+    type: object
+  util.PostResponseModel:
+    properties:
+      _id:
+        type: string
+    type: object
+host: user.swagger.io
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample ticket & category API server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Category API
+  version: "1.0"
+paths:
+  /api/categories:
+    get:
+      consumes:
+      - application/json
+      description: Get list of categories
+      parameters:
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: pageSize
+        type: integer
+      - in: query
+        name: sortingDirection
+        type: integer
+      - in: query
+        name: sortingField
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.GetAllResponseType'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Get list of categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Insert a category by requested body
+      parameters:
+      - description: categoryPostRequestModel
+        in: body
+        name: categoryPostRequestModel
+        required: true
+        schema:
+          $ref: '#/definitions/categoryType.CategoryPostRequestModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.PostResponseModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Insert a category
+      tags:
+      - categories
+  /api/categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DeleteResponseType'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Delete a category
+      tags:
+      - categories
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/categoryType.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Show a category
+      tags:
+      - categories
+  /isExist/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Checks if category exist by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: boolean
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Checks if category exist by id
+      tags:
+      - categories
+swagger: "2.0"
