@@ -1,0 +1,415 @@
+basePath: /api/
+definitions:
+  entity.Answer:
+    properties:
+      _id:
+        type: string
+      body:
+        type: string
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entity.Attachment:
+    properties:
+      _id:
+        type: string
+      fileName:
+        type: string
+      filePath:
+        type: string
+    type: object
+  entity.Category:
+    properties:
+      _id:
+        type: string
+      createdAt:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entity.CategoryPostRequestModel:
+    properties:
+      name:
+        type: string
+    type: object
+  entity.CategoryPostResponseModel:
+    properties:
+      _id:
+        type: string
+    type: object
+  entity.Ticket:
+    properties:
+      _id:
+        type: string
+      answers:
+        items:
+          $ref: '#/definitions/entity.Answer'
+        type: array
+      attachments:
+        items:
+          $ref: '#/definitions/entity.Attachment'
+        type: array
+      body:
+        type: string
+      category:
+        $ref: '#/definitions/entity.Category'
+      createdAt:
+        type: string
+      createdBy:
+        type: string
+      lastAnsweredAt:
+        type: string
+      status:
+        type: integer
+      subject:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  entity.TicketPostRequestModel:
+    properties:
+      answers:
+        items:
+          $ref: '#/definitions/entity.Answer'
+        type: array
+      attachments:
+        items:
+          $ref: '#/definitions/entity.Attachment'
+        type: array
+      body:
+        type: string
+      category:
+        $ref: '#/definitions/entity.Category'
+      createdBy:
+        type: string
+      lastAnsweredAt:
+        type: string
+      status:
+        type: integer
+      subject:
+        type: string
+    type: object
+  entity.TicketPostResponseModel:
+    properties:
+      _id:
+        type: string
+    type: object
+  util.DeleteResponseType:
+    properties:
+      isSuccess:
+        type: boolean
+    type: object
+  util.Error:
+    properties:
+      applicationName:
+        type: string
+      description:
+        type: string
+      errorCode:
+        type: integer
+      operation:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+host: user.swagger.io
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample ticket & category API server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Ticket & Category API
+  version: "1.0"
+paths:
+  /api/categories:
+    get:
+      consumes:
+      - application/json
+      description: Get list of categories
+      parameters:
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: pageSize
+        type: integer
+      - in: query
+        name: sortingDirection
+        type: integer
+      - in: query
+        name: sortingField
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Category'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Get list of categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Insert a category by requested body
+      parameters:
+      - description: categoryPostRequestModel
+        in: body
+        name: categoryPostRequestModel
+        required: true
+        schema:
+          $ref: '#/definitions/entity.CategoryPostRequestModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.CategoryPostResponseModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Insert a category
+      tags:
+      - categories
+  /api/categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DeleteResponseType'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Delete a category
+      tags:
+      - categories
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Show a category
+      tags:
+      - categories
+  /api/tickets:
+    get:
+      consumes:
+      - application/json
+      description: Get list of tickets
+      parameters:
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: pageSize
+        type: integer
+      - in: query
+        name: sortingDirection
+        type: integer
+      - in: query
+        name: sortingField
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.Ticket'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Get list of tickets
+      tags:
+      - tickets
+    post:
+      consumes:
+      - application/json
+      description: Insert a ticket by requested body
+      parameters:
+      - description: ticketPostRequestModel
+        in: body
+        name: ticketPostRequestModel
+        required: true
+        schema:
+          $ref: '#/definitions/entity.TicketPostRequestModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.TicketPostResponseModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Insert a ticket
+      tags:
+      - tickets
+  /api/tickets/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a ticket by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DeleteResponseType'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Delete a ticket
+      tags:
+      - tickets
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.Ticket'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Show a ticket
+      tags:
+      - tickets
+swagger: "2.0"

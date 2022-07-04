@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  ticket_service:
+    container_name: ticket_service
+    image: ticket_service
+    build:
+      context: ./TicketApp
+      dockerfile: ./Dockerfile
+    ports:
+      - "8084:8084"
+    environment:
+      - Env=qa
+
+  user_service:
+    container_name: user_service
+    image: user_service
+    build:
+      context: ./UserApp
+      dockerfile: ./Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      - Env=qa
+    depends_on:
+      - mongo
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"

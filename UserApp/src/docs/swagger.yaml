@@ -1,0 +1,264 @@
+basePath: /api/users
+definitions:
+  entity.LoginRequestModel:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.LoginResponseModel:
+    properties:
+      isSuccessful:
+        type: boolean
+      token:
+        type: string
+    type: object
+  entity.User:
+    properties:
+      _id:
+        type: string
+      age:
+        type: integer
+      createdAt:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      type:
+        type: integer
+      updatedAt:
+        type: string
+      username:
+        type: string
+    type: object
+  entity.UserPostRequestModel:
+    properties:
+      age:
+        type: integer
+      email:
+        type: string
+      password:
+        type: string
+      type:
+        type: integer
+      username:
+        type: string
+    type: object
+  util.DeleteResponseType:
+    properties:
+      isSuccess:
+        type: boolean
+    type: object
+  util.Error:
+    properties:
+      applicationName:
+        type: string
+      description:
+        type: string
+      errorCode:
+        type: integer
+      operation:
+        type: string
+      statusCode:
+        type: integer
+    type: object
+  util.PostResponseModel:
+    properties:
+      _id:
+        type: string
+    type: object
+host: user.swagger.io
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample user API server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger User API
+  version: "1.0"
+paths:
+  /api/users:
+    get:
+      consumes:
+      - application/json
+      description: Get list of users
+      parameters:
+      - in: query
+        name: page
+        type: integer
+      - in: query
+        name: pageSize
+        type: integer
+      - in: query
+        name: sortingDirection
+        type: integer
+      - in: query
+        name: sortingField
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/entity.User'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Get list of users
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Upsert a user by requested body
+      parameters:
+      - description: id
+        in: path
+        name: id
+        type: string
+      - description: userPostRequestBody
+        in: body
+        name: userPostRequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/entity.UserPostRequestModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.PostResponseModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Upsert a user
+      tags:
+      - users
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user by id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/util.DeleteResponseType'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Delete a user
+      tags:
+      - users
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Show a user
+      tags:
+      - users
+  /api/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Login - Besides response body token sets response header and cookie.
+      parameters:
+      - description: loginRequestModel
+        in: body
+        name: loginRequestModel
+        required: true
+        schema:
+          $ref: '#/definitions/entity.LoginRequestModel'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.LoginResponseModel'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Login
+      tags:
+      - users
+swagger: "2.0"
