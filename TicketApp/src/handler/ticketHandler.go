@@ -34,13 +34,9 @@ func NewTicketHandler(ticketService service.TicketService, cfg *ticketConfig.App
 // @Router       /api/tickets/{id} [get]
 func (h *TicketHandler) TicketGetById(ctx echo.Context) error {
 	id := ctx.Param("id")
-
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("ticket handler").ModifyErrorCode(4018))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("ticket handler").ModifyErrorCode(4019))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	ticket, errSrv := h.ticketService.TicketServiceGetById(id)
@@ -104,12 +100,9 @@ func (h *TicketHandler) TicketInsert(ctx echo.Context) error {
 // @Router       /api/tickets/{id} [delete]
 func (h *TicketHandler) TicketDeleteById(ctx echo.Context) error {
 	id := ctx.Param("id")
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4020))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4021))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	res, errSrv := h.ticketService.TicketServiceDeleteById(id)

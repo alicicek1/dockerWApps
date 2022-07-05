@@ -148,3 +148,14 @@ func CreateFilter(model any, filters string) map[string]interface{} {
 	}
 	return nil
 }
+
+func ValidateForUserHandlerId(id string) *Error {
+	if id == "" {
+		return PathVariableNotFound.ModifyApplicationName("category handler").ModifyErrorCode(4050)
+	}
+
+	if !IsValidUUID(id) {
+		return PathVariableIsNotValid.ModifyApplicationName("category handler").ModifyErrorCode(4051)
+	}
+	return nil
+}

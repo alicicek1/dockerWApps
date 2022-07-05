@@ -22,6 +22,16 @@ type AppConfig struct {
 }
 
 var EnvConfig = map[string]AppConfig{
+	"local": {
+		Env:             "local",
+		MongoClientUri:  "mongodb://localhost:27017",
+		DBName:          "TicketApp",
+		UserColName:     "USer",
+		TicketColName:   "Ticket",
+		CategoryColName: "Category",
+		MongoDuration:   5,
+		MaxPageLimit:    100,
+	},
 	"qa": {
 		Env:             "qa",
 		MongoClientUri:  "mongodb://mongo:27017",

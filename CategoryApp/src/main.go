@@ -7,8 +7,10 @@ import (
 	categoryRepository "CategoryApp/src/repository"
 	categoryService "CategoryApp/src/service"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
+	"net/http"
 )
 
 // @title Swagger Category API
@@ -36,14 +38,24 @@ func main() {
 	categoryRepository := categoryRepository.NewCategoryRepository(categoryCollection)
 	categoryService := categoryService.NewCategoryService(categoryRepository)
 	categoryHandler := categoryHandler.NewCategoryHandler(categoryService, cfg)
+
+	Route(e, categoryHandler)
+
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	log.Fatal(e.Start(":8081"))
+
+}
+
+func Route(e *echo.Echo, categoryHandler categoryHandler.CategoryHandler) {
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
+	}))
+
 	categoryGroup := e.Group("/api/categories")
 	categoryGroup.GET("/:id", categoryHandler.CategoryGetById)
 	categoryGroup.GET("", categoryHandler.CategoryGetAll)
 	categoryGroup.POST("", categoryHandler.CategoryInsert)
 	categoryGroup.DELETE("/:id", categoryHandler.CategoryDeleteById)
-	categoryGroup.DELETE("/isExist/:id", categoryHandler.CategoryIfExistById)
-
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	log.Fatal(e.Start(":8081"))
-
+	categoryGroup.GET("/isExist/:id", categoryHandler.CategoryIfExistById)
 }

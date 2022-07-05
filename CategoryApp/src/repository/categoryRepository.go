@@ -97,5 +97,5 @@ func (c CategoryRepositoryType) CategoryIfExistById(id string) (bool, *util.Erro
 		return true, nil
 	}
 
-	return false, util.UnKnownError.ModifyApplicationName("Category Repository").ModifyOperation("Count document by id").ModifyDescription("There is no user with provided identified.").ModifyErrorCode(3033).ModifyStatusCode(http.StatusBadRequest)
+	return false, util.UnKnownError.ModifyApplicationName("Category Repository").ModifyOperation("Count document by id").ModifyDescription("There is no category with provided identified.").ModifyErrorCode(3033).ModifyStatusCode(http.StatusBadRequest)
 }

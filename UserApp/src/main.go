@@ -7,8 +7,10 @@ import (
 	userRepository "UserApp/src/repository"
 	userService "UserApp/src/service"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
+	"net/http"
 )
 
 // @title Swagger User API
@@ -38,6 +40,19 @@ func main() {
 	userService := userService.NewUserService(userRepository)
 	userHandler := userHandler.NewUserHandler(userService, cfg)
 
+	Route(e, userHandler)
+
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	log.Fatal(e.Start(":8083"))
+
+}
+
+func Route(e *echo.Echo, userHandler userHandler.UserHandler) {
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
+	}))
+
 	userGroup := e.Group("/api/users")
 	userGroup.GET("/:id", userHandler.UserGetById)
 	userGroup.GET("", userHandler.UserGetAll)
@@ -45,8 +60,4 @@ func main() {
 	userGroup.POST("/login", userHandler.Login)
 	userGroup.DELETE("/:id", userHandler.UserDeleteById)
 	userGroup.GET("/isExist/:id", userHandler.UserIfExistById)
-
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
-	log.Fatal(e.Start(":8083"))
-
 }

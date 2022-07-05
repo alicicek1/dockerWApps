@@ -36,13 +36,9 @@ func NewCategoryHandler(categoryService categoryService.CategoryService, cfg *ca
 // @Router       /api/categories/{id} [get]
 func (h *CategoryHandler) CategoryGetById(ctx echo.Context) error {
 	id := ctx.Param("id")
-
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("category handler").ModifyErrorCode(4016))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("category handler").ModifyErrorCode(4017))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	category, errSrv := h.categoryService.CategoryServiceGetById(id)
@@ -97,12 +93,9 @@ func (h *CategoryHandler) CategoryInsert(ctx echo.Context) error {
 // @Router       /api/categories/{id} [delete]
 func (h *CategoryHandler) CategoryDeleteById(ctx echo.Context) error {
 	id := ctx.Param("id")
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4013))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4014))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	res, errSrv := h.categoryService.CategoryServiceDeleteById(id)
@@ -166,12 +159,9 @@ func (h *CategoryHandler) CategoryGetAll(ctx echo.Context) error {
 // @Router       /isExist/{id} [get]
 func (h *CategoryHandler) CategoryIfExistById(ctx echo.Context) error {
 	id := ctx.Param("id")
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4013))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4014))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	res, errSrv := h.categoryService.CategoryIfExistById(id)

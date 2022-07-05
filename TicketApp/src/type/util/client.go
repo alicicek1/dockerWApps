@@ -1,0 +1,53 @@
+package util
+
+import (
+	"encoding/json"
+	"github.com/valyala/fasthttp"
+	"net/http"
+	"time"
+)
+
+type Client struct {
+	BaseUrl string
+}
+
+func (c Client) NewClient() *fasthttp.Client {
+	return &fasthttp.Client{
+		MaxConnsPerHost:     10,
+		MaxIdleConnDuration: time.Second * 10,
+		MaxConnDuration:     time.Second * 10,
+		MaxConnWaitTimeout:  time.Second * 10,
+		RetryIf:             nil,
+	}
+}
+
+func (c Client) ExistById(id string) (string, *Error) {
+	client := c.NewClient()
+
+	req := fasthttp.AcquireRequest()
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseRequest(req)
+	defer fasthttp.ReleaseResponse(resp)
+
+	req.SetRequestURI(c.BaseUrl + "isExist/" + id)
+
+	err := client.Do(req, resp)
+	if err != nil {
+		return "false", NewError("Client", "ExistById", err.Error(), resp.StatusCode(), 6050)
+	}
+
+	bodyBytes := resp.Body()
+	bodyStr := string(bodyBytes)
+
+	if resp.StatusCode() == http.StatusOK {
+		return bodyStr, nil
+	}
+
+	error := Error{}
+	err = json.Unmarshal(bodyBytes, &error)
+	if err != nil {
+		return "false", NewError("Client", "Unmarshalling", err.Error(), resp.StatusCode(), 6051)
+	}
+
+	return "false", NewError("Client", "ExistById", error.Description, error.StatusCode, 6051)
+}

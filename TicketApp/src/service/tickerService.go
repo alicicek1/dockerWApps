@@ -10,6 +10,8 @@ import (
 
 type TicketServiceType struct {
 	TicketRepository repository.TicketRepository
+	UserClient       util.Client
+	CategoryClient   util.Client
 }
 
 type TicketService interface {
@@ -19,13 +21,13 @@ type TicketService interface {
 	TicketServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error)
 }
 
-func NewTicketService(r repository.TicketRepository) TicketServiceType {
-	return TicketServiceType{TicketRepository: r}
+func NewTicketService(r repository.TicketRepository, userClient util.Client, categoryClient util.Client) TicketServiceType {
+	return TicketServiceType{TicketRepository: r, UserClient: userClient, CategoryClient: categoryClient}
 }
 
 func (t TicketServiceType) TicketServiceInsert(ticket entity.Ticket) (*util.PostResponseModel, *util.Error) {
 	if ticket.Id == "" {
-		isSuccess, err := util.CheckTicketModel(ticket)
+		isSuccess, err := util.CheckTicketModel(ticket, t.UserClient, t.CategoryClient)
 		if !isSuccess {
 			return nil, err
 		}

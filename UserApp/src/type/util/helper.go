@@ -7,73 +7,13 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"github.com/valyala/fasthttp"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
 	"time"
 )
-
-type Client struct {
-	Client fasthttp.Client
-}
-
-func Get() {
-	request := fasthttp.AcquireRequest()
-	request.SetRequestURI("")
-	request.Header.SetMethod(http.MethodGet)
-	response := fasthttp.AcquireResponse()
-	err := GetClient().Client.Do(request, response)
-	if err != nil {
-
-	}
-
-}
-
-func GetClient() *Client {
-	return &Client{
-		Client: fasthttp.Client{
-			Name:                          "",
-			NoDefaultUserAgentHeader:      false,
-			Dial:                          nil,
-			DialDualStack:                 false,
-			TLSConfig:                     nil,
-			MaxConnsPerHost:               0,
-			MaxIdleConnDuration:           0,
-			MaxConnDuration:               0,
-			MaxIdemponentCallAttempts:     0,
-			ReadBufferSize:                0,
-			WriteBufferSize:               0,
-			ReadTimeout:                   0,
-			WriteTimeout:                  0,
-			MaxResponseBodySize:           0,
-			DisableHeaderNamesNormalizing: false,
-			DisablePathNormalizing:        false,
-			MaxConnWaitTimeout:            0,
-			RetryIf:                       nil,
-			ConnPoolStrategy:              0,
-			ConfigureClient:               nil,
-		},
-	}
-}
-
-func CheckIfCreatorExist(creator string) (interface{}, *error) {
-
-	//client := GetClient()
-	//code, res, err := client.Client.Get("")
-	//if err != nil {
-	//	return false, &err
-	//}
-	//defer res.Body.Close()
-	//
-	//a:=ioutil.ReadAll(res)
-	//
-	//return ioutil.ReadAll(res, nil)
-	return nil, nil
-}
 
 func CheckUserModel(user userEntity.User) (bool, *Error) {
 	if user.Username == "" {
@@ -231,4 +171,15 @@ func CreateToken(model userEntity.LoginRequestModel) (*userEntity.LoginResponseM
 	response.IsSuccessful = true
 	response.Token = tokenStr
 	return &response, nil
+}
+
+func ValidateForUserHandlerId(id string) *Error {
+	if id == "" {
+		return PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4013)
+	}
+
+	if !IsValidUUID(id) {
+		return PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4014)
+	}
+	return nil
 }

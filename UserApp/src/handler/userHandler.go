@@ -37,13 +37,9 @@ func NewUserHandler(userService userService.UserService, cfg *userConfig.AppConf
 // @Router       /api/users/{id} [get]
 func (h *UserHandler) UserGetById(ctx echo.Context) error {
 	id := ctx.Param("id")
-
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4008))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4009))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	user, errSrv := h.userService.UserServiceGetById(id)
@@ -110,12 +106,9 @@ func (h *UserHandler) UserUpsert(ctx echo.Context) error {
 // @Router       /api/users/{id} [delete]
 func (h *UserHandler) UserDeleteById(ctx echo.Context) error {
 	id := ctx.Param("id")
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4013))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4014))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	res, errSrv := h.userService.UserServiceDeleteById(id)
@@ -243,12 +236,9 @@ func (h *UserHandler) Login(ctx echo.Context) error {
 // @Router /api/users/isExist/{id} [get]
 func (h *UserHandler) UserIfExistById(ctx echo.Context) error {
 	id := ctx.Param("id")
-	if id == "" {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableNotFound.ModifyApplicationName("user handler").ModifyErrorCode(4013))
-	}
-
-	if !util.IsValidUUID(id) {
-		return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyErrorCode(4014))
+	err := util.ValidateForUserHandlerId(id)
+	if err != nil {
+		return ctx.JSON(err.StatusCode, err)
 	}
 
 	res, errSrv := h.userService.UserIfExistById(id)

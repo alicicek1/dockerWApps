@@ -2,53 +2,22 @@ package util
 
 import (
 	entity2 "TicketApp/src/type/entity"
-	"encoding/json"
 	"fmt"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"io/ioutil"
-	"net/http"
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 )
 
-func GetClient() http.Client {
-	return http.Client{
-		Transport: &http.Transport{
-			Proxy:                  nil,
-			DialContext:            nil,
-			Dial:                   nil,
-			DialTLSContext:         nil,
-			DialTLS:                nil,
-			TLSClientConfig:        nil,
-			TLSHandshakeTimeout:    0,
-			DisableKeepAlives:      false,
-			DisableCompression:     false,
-			MaxIdleConns:           0,
-			MaxIdleConnsPerHost:    0,
-			MaxConnsPerHost:        0,
-			IdleConnTimeout:        0,
-			ResponseHeaderTimeout:  0,
-			ExpectContinueTimeout:  0,
-			TLSNextProto:           nil,
-			ProxyConnectHeader:     nil,
-			GetProxyConnectHeader:  nil,
-			MaxResponseHeaderBytes: 0,
-			WriteBufferSize:        0,
-			ReadBufferSize:         0,
-			ForceAttemptHTTP2:      false,
-		},
-		CheckRedirect: nil,
-		Jar:           nil,
-		Timeout:       0,
+func CheckTicketModel(ticket entity2.Ticket, userClient Client, categoryClient Client) (bool, *Error) {
+	_, errValidation := CheckIfCreatorExist(userClient, ticket.CreatedBy)
+	if errValidation != nil {
+		return false, errValidation
 	}
-}
 
-func CheckTicketModel(ticket entity2.Ticket) (bool, *Error) {
-	_, errValidation := CheckIfCreatorExist(ticket.CreatedBy)
+	_, errValidation = CheckIfCategoryExist(categoryClient, ticket.CategoryId)
 	if errValidation != nil {
 		return false, errValidation
 	}
@@ -56,48 +25,40 @@ func CheckTicketModel(ticket entity2.Ticket) (bool, *Error) {
 	return true, nil
 }
 
-func CheckIfCreatorExist(creator string) (bool, *Error) {
-
-	client := GetClient()
-	res, err := client.Get("http://user_service:8083/api/users/" + creator)
+func CheckIfCategoryExist(client Client, id string) (bool, *Error) {
+	resp, err := client.ExistById(id)
 	if err != nil {
-		return false, NewError("", "", err.Error(), 1, 1)
+		return false, err
 	}
-	defer res.Body.Close()
-	body, err := ioutil.ReadAll(res.Body)
+
+	res, er := strconv.ParseBool(strings.Trim(resp, "\n"))
+	if er != nil {
+		fmt.Println(er)
+	}
+
+	if res {
+		return true, nil
+	}
+
+	return false, err
+}
+
+func CheckIfCreatorExist(client Client, creator string) (bool, *Error) {
+	resp, err := client.ExistById(creator)
 	if err != nil {
-		return false, NewError("", "", err.Error(), 1, 1)
+		return false, err
 	}
 
-	user := User{}
-
-	err = json.Unmarshal(body, &user)
-	if err != nil {
-		return false, NewError("", "", err.Error(), 1, 1)
+	res, er := strconv.ParseBool(strings.Trim(resp, "\n"))
+	if er != nil {
+		fmt.Println(er)
 	}
 
-	if user.Id == "" {
-		return false, NewError("", "", "There is no user with provided user information.", http.StatusNotFound, 1)
+	if res {
+		return true, nil
 	}
 
-	fmt.Println(string(body))
-
-	return true, nil
-
-	//
-	//request := fasthttp.Request{
-	//	Header:        fasthttp.RequestHeader{},
-	//	UseHostHeader: false,
-	//}
-	//
-	//response := fasthttp.Response{
-	//	Header:               fasthttp.ResponseHeader{},
-	//	ImmediateHeaderFlush: false,
-	//	SkipBody:             false,
-	//}
-	//
-	//client.Client.Do(request)
-	return true, nil
+	return false, err
 }
 
 func IsValidUUID(uuidStr string) bool {
@@ -201,13 +162,13 @@ func CreateFilter(model any, filters string) map[string]interface{} {
 	return nil
 }
 
-type User struct {
-	Id        string    `json:"_id" bson:"_id,omitempty"`
-	Username  string    `json:"username,omitempty" bson:"username,omitempty"`
-	Password  string    `json:"password,omitempty" bson:"password,omitempty"`
-	Email     string    `json:"email,omitempty" bson:"email,omitempty"`
-	CreatedAt time.Time `json:"createdAt" bson:"createdAt,omitempty"`
-	UpdatedAt time.Time `json:"updatedAt" bson:"updatedAt,omitempty"`
-	Age       int32     `json:"age,omitempty" bson:"age,omitempty"`
-	Type      byte      `json:"type,omitempty" bson:"type,omitempty"`
+func ValidateForUserHandlerId(id string) *Error {
+	if id == "" {
+		return PathVariableNotFound.ModifyApplicationName("ticket handler").ModifyErrorCode(4018)
+	}
+
+	if !IsValidUUID(id) {
+		return PathVariableIsNotValid.ModifyApplicationName("ticket handler").ModifyErrorCode(4019)
+	}
+	return nil
 }
