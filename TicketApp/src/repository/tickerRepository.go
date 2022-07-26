@@ -61,23 +61,42 @@ func (t TicketRepositoryType) TicketRepositoryGetAll(filter util.Filter) (*util.
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	totalCount, err := t.TicketCollection.CountDocuments(ctx, filter.Filters)
-	if err != nil {
-		return nil, util.CountGet.ModifyApplicationName("ticket repository").ModifyDescription(err.Error()).ModifyErrorCode(3001)
-	}
-	opts := options.Find().SetSkip(filter.Page).SetLimit(filter.PageSize)
-	if filter.SortingField != "" && filter.SortingDirection != 0 {
-		opts.SetSort(bson.D{{filter.SortingField, filter.SortingDirection}})
-	}
+	ticketCountChannel := make(chan int64)
+	errorChannel := make(chan *util.Error)
+	go t.GetTotalCount(ctx, filter.Filters, ticketCountChannel, errorChannel)
 
-	cur, err := t.TicketCollection.Find(ctx, filter.Filters, opts)
-	if err != nil {
+	select {
+	case ticketCountVal, ok := <-ticketCountChannel:
+		if ok {
+			opts := options.Find().SetSkip(filter.Page).SetLimit(filter.PageSize)
+			if filter.SortingField != "" && filter.SortingDirection != 0 {
+				opts.SetSort(bson.D{{filter.SortingField, filter.SortingDirection}})
+			}
 
+			cur, err := t.TicketCollection.Find(ctx, filter.Filters, opts)
+			if err != nil {
+
+			}
+			var tickets []entity.Ticket
+			err = cur.All(ctx, &tickets)
+			return &util.GetAllResponseType{
+				RowCount: ticketCountVal,
+				Models:   tickets,
+			}, nil
+		}
+	case errorVal, ok := <-errorChannel:
+		if ok {
+			return nil, errorVal
+		}
 	}
-	var tickets []entity.Ticket
-	err = cur.All(ctx, &tickets)
-	return &util.GetAllResponseType{
-		RowCount: totalCount,
-		Models:   tickets,
-	}, nil
+	return nil, nil
+}
+
+func (t TicketRepositoryType) GetTotalCount(ctx context.Context, filters map[string]interface{}, countChannel chan int64, errorChannel chan *util.Error) {
+	totalCount, err := t.TicketCollection.CountDocuments(ctx, filters)
+	if err != nil {
+		errorChannel <- util.CountGet.ModifyApplicationName("ticket repository").ModifyDescription(err.Error()).ModifyErrorCode(3001)
+	} else {
+		countChannel <- totalCount
+	}
 }

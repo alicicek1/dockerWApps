@@ -68,29 +68,49 @@ func (u UserRepositoryType) UserRepositoryGetAll(filter util.Filter) (*util.GetA
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
-	totalCount, err := u.UserCollection.CountDocuments(ctx, filter.Filters)
-	if err != nil {
-		return nil, util.CountGet.ModifyApplicationName("user repository").ModifyDescription(err.Error()).ModifyErrorCode(3002)
-	}
-	opts := options.Find().SetSkip(filter.Page).SetLimit(filter.PageSize)
-	if filter.SortingField != "" && filter.SortingDirection != 0 {
-		opts.SetSort(bson.D{{filter.SortingField, filter.SortingDirection}})
-	}
+	userCountChannel := make(chan int64)
+	errorChannel := make(chan *util.Error)
+	go u.GetTotalCount(ctx, filter.Filters, userCountChannel, errorChannel)
 
-	cur, err := u.UserCollection.Find(ctx, filter.Filters, opts)
-	if err != nil {
-		return nil, util.UnKnownError.ModifyApplicationName("user repository").ModifyOperation("GET").ModifyDescription(err.Error()).ModifyErrorCode(4044)
+	select {
+	case userCount, ok := <-userCountChannel:
+		if ok {
+			opts := options.Find().SetSkip(filter.Page).SetLimit(filter.PageSize)
+			if filter.SortingField != "" && filter.SortingDirection != 0 {
+				opts.SetSort(bson.D{{filter.SortingField, filter.SortingDirection}})
+			}
+
+			cur, err := u.UserCollection.Find(ctx, filter.Filters, opts)
+			if err != nil {
+				return nil, util.UnKnownError.ModifyApplicationName("user repository").ModifyOperation("GET").ModifyDescription(err.Error()).ModifyErrorCode(4044)
+			}
+			var users []userEntity.User
+			err = cur.All(ctx, &users)
+			if err != nil {
+				return nil, util.UnKnownError.ModifyApplicationName("user repository").ModifyOperation("GET").ModifyDescription(err.Error()).ModifyErrorCode(4045)
+			}
+			return &util.GetAllResponseType{
+				RowCount: userCount,
+				Models:   users,
+			}, nil
+		}
+	case errorVal, ok := <-errorChannel:
+		if ok {
+			return nil, errorVal
+		}
 	}
-	var users []userEntity.User
-	err = cur.All(ctx, &users)
-	if err != nil {
-		return nil, util.UnKnownError.ModifyApplicationName("user repository").ModifyOperation("GET").ModifyDescription(err.Error()).ModifyErrorCode(4045)
-	}
-	return &util.GetAllResponseType{
-		RowCount: totalCount,
-		Models:   users,
-	}, nil
+	return nil, nil
 }
+
+func (u UserRepositoryType) GetTotalCount(ctx context.Context, filters map[string]interface{}, countChannel chan int64, errorChannel chan *util.Error) {
+	totalCount, err := u.UserCollection.CountDocuments(ctx, filters)
+	if err != nil {
+		errorChannel <- util.CountGet.ModifyApplicationName("user repository").ModifyDescription(err.Error()).ModifyErrorCode(3002)
+	} else {
+		countChannel <- totalCount
+	}
+}
+
 func (u UserRepositoryType) UserRepositoryFindByUsernameAndPassword(model userEntity.LoginRequestModel) (*userEntity.User, *util.Error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()

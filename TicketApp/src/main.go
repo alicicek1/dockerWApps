@@ -35,8 +35,8 @@ func main() {
 
 	e := echo.New()
 
-	userClient := util.Client{BaseUrl: "http://user_service:8083/api/users/"}
-	categoryClient := util.Client{BaseUrl: "http://category_service:8081/api/categories/"}
+	userClient := util.Client{BaseUrl: "http://localhost:8083/api/users/"}
+	categoryClient := util.Client{BaseUrl: "http://localhost:8081/api/categories/"}
 
 	ticketCollection := mCfg.GetCollection(client, cfg.TicketColName)
 	ticketRepository := repository.NewTicketRepository(ticketCollection)

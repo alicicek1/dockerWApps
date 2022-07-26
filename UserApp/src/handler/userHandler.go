@@ -5,13 +5,16 @@ import (
 	userService "UserApp/src/service"
 	userEntity "UserApp/src/type/entity"
 	"UserApp/src/type/util"
+	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 type UserHandler struct {
@@ -247,4 +250,53 @@ func (h *UserHandler) UserIfExistById(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, res)
+}
+
+// ReadCsv godoc
+// @Summary ReadCsv
+// @Description ReadCsv
+// @Tags users
+// @Accept  json
+// @Produce  json
+// @Param fileCsv formData file true "Body with file csv"
+// @Success 200 {object} bool
+// @Failure 400 {object} util.Error
+// @Failure 404 {object} util.Error
+// @Failure 500 {object} util.Error
+// @Router /api/users/readCsv [post]
+func (h *UserHandler) ReadCsv(ctx echo.Context) error {
+	fileHeader, fileHeaderErr := ctx.FormFile("file")
+	CheckError(fileHeaderErr)
+
+	if !strings.Contains(fileHeader.Filename, "csv") {
+		return ctx.JSON(http.StatusBadRequest, util.NewError("user handler", "reading csv file", "file must be cvs", http.StatusBadRequest, 5000))
+	}
+
+	file, fileOpenErr := fileHeader.Open()
+	defer file.Close()
+	CheckError(fileOpenErr)
+
+	csvReader := csv.NewReader(file)
+	data, err := csvReader.ReadAll()
+	CheckError(err)
+	fmt.Println(data)
+
+	//var wg sync.WaitGroup
+	//go func() {
+	//	data, err := csvReader.ReadAll()
+	//	CheckError(err)
+	//	for _, datum := range data {
+	//		wg.Add(1)
+	//		fmt.Println(datum)
+	//		wg.Done()
+	//	}
+	//}()
+	//wg.Wait()
+	return ctx.JSON(http.StatusOK, "File reading. Check console.")
+}
+
+func CheckError(err error) {
+	if err != nil {
+		fmt.Println(err)
+	}
 }

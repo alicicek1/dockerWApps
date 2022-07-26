@@ -63,25 +63,44 @@ func (c CategoryRepositoryType) CategoryRepositoryGetAll(filter util.Filter) (*u
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	totalCount, err := c.CategoryCollection.CountDocuments(ctx, filter.Filters)
-	if err != nil {
-		return nil, util.CountGet.ModifyApplicationName("category repository").ModifyDescription(err.Error()).ModifyErrorCode(3000)
-	}
-	opts := options.Find().SetSkip(filter.Page).SetLimit(filter.PageSize)
-	if filter.SortingField != "" && filter.SortingDirection != 0 {
-		opts.SetSort(bson.D{{filter.SortingField, filter.SortingDirection}})
-	}
+	categoryCountChannel := make(chan int64)
+	errorChannel := make(chan *util.Error)
+	go c.GetTotalCount(ctx, filter.Filters, categoryCountChannel, errorChannel)
 
-	cur, err := c.CategoryCollection.Find(ctx, filter.Filters, opts)
-	if err != nil {
+	select {
+	case categoryCountVal, ok := <-categoryCountChannel:
+		if ok {
+			opts := options.Find().SetSkip(filter.Page).SetLimit(filter.PageSize)
+			if filter.SortingField != "" && filter.SortingDirection != 0 {
+				opts.SetSort(bson.D{{filter.SortingField, filter.SortingDirection}})
+			}
 
+			cur, err := c.CategoryCollection.Find(ctx, filter.Filters, opts)
+			if err != nil {
+
+			}
+			var categories []categoryType.Category
+			err = cur.All(ctx, &categories)
+			return &util.GetAllResponseType{
+				RowCount: categoryCountVal,
+				Models:   categories,
+			}, nil
+		}
+	case errorVal, ok := <-errorChannel:
+		if ok {
+			return nil, errorVal
+		}
 	}
-	var categories []categoryType.Category
-	err = cur.All(ctx, &categories)
-	return &util.GetAllResponseType{
-		RowCount: totalCount,
-		Models:   categories,
-	}, nil
+	return nil, nil
+}
+
+func (c CategoryRepositoryType) GetTotalCount(ctx context.Context, filters map[string]interface{}, countChannel chan int64, errorChannel chan *util.Error) {
+	totalCount, err := c.CategoryCollection.CountDocuments(ctx, filters)
+	if err != nil {
+		errorChannel <- util.CountGet.ModifyApplicationName("category repository").ModifyDescription(err.Error()).ModifyErrorCode(3000)
+	} else {
+		countChannel <- totalCount
+	}
 }
 
 func (c CategoryRepositoryType) CategoryIfExistById(id string) (bool, *util.Error) {

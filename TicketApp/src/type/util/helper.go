@@ -26,7 +26,8 @@ func CheckTicketModel(ticket entity2.Ticket, userClient Client, categoryClient C
 }
 
 func CheckIfCategoryExist(client Client, id string) (bool, *Error) {
-	resp, err := client.ExistById(id)
+	path := client.BaseUrl + "isExist/" + id
+	resp, err := client.Get(path, client.BaseHeaders)
 	if err != nil {
 		return false, err
 	}
@@ -44,7 +45,8 @@ func CheckIfCategoryExist(client Client, id string) (bool, *Error) {
 }
 
 func CheckIfCreatorExist(client Client, creator string) (bool, *Error) {
-	resp, err := client.ExistById(creator)
+	path := "isExist/" + creator
+	resp, err := client.Get(path, nil)
 	if err != nil {
 		return false, err
 	}

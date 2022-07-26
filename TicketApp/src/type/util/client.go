@@ -8,7 +8,8 @@ import (
 )
 
 type Client struct {
-	BaseUrl string
+	BaseUrl     string
+	BaseHeaders map[string]string
 }
 
 func (c Client) NewClient() *fasthttp.Client {
@@ -21,7 +22,7 @@ func (c Client) NewClient() *fasthttp.Client {
 	}
 }
 
-func (c Client) ExistById(id string) (string, *Error) {
+func (c Client) Get(additionalPath string, hearders map[string]string) (string, *Error) {
 	client := c.NewClient()
 
 	req := fasthttp.AcquireRequest()
@@ -29,7 +30,16 @@ func (c Client) ExistById(id string) (string, *Error) {
 	defer fasthttp.ReleaseRequest(req)
 	defer fasthttp.ReleaseResponse(resp)
 
-	req.SetRequestURI(c.BaseUrl + "isExist/" + id)
+	req.SetRequestURI(c.BaseUrl + additionalPath)
+	if len(c.BaseHeaders) > 0 {
+		for key := range c.BaseHeaders {
+			req.Header.Add(key, c.BaseHeaders[key])
+		}
+	}
+
+	for key := range hearders {
+		req.Header.Add(key, hearders[key])
+	}
 
 	err := client.Do(req, resp)
 	if err != nil {
@@ -46,7 +56,11 @@ func (c Client) ExistById(id string) (string, *Error) {
 	error := Error{}
 	err = json.Unmarshal(bodyBytes, &error)
 	if err != nil {
-		return "false", NewError("Client", "Unmarshalling", err.Error(), resp.StatusCode(), 6051)
+		return "false", NewError("Client", "Unmarshalling", err.Error(), http.StatusBadRequest, 6051)
+	}
+
+	if error == (Error{}) {
+		return "false", NewError("Client", "ClientError", string(resp.Body()), resp.StatusCode(), 6051)
 	}
 
 	return "false", NewError("Client", "ExistById", error.Description, error.StatusCode, 6051)

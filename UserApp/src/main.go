@@ -60,4 +60,5 @@ func Route(e *echo.Echo, userHandler userHandler.UserHandler) {
 	userGroup.POST("/login", userHandler.Login)
 	userGroup.DELETE("/:id", userHandler.UserDeleteById)
 	userGroup.GET("/isExist/:id", userHandler.UserIfExistById)
+	userGroup.POST("/readCsv", userHandler.ReadCsv)
 }
