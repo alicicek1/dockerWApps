@@ -266,7 +266,7 @@ func (h *UserHandler) UserIfExistById(ctx echo.Context) error {
 // @Router /api/users/readCsv [post]
 func (h *UserHandler) ReadCsv(ctx echo.Context) error {
 	fileHeader, fileHeaderErr := ctx.FormFile("file")
-	CheckError(fileHeaderErr)
+	util.CheckError(fileHeaderErr)
 
 	if !strings.Contains(fileHeader.Filename, "csv") {
 		return ctx.JSON(http.StatusBadRequest, util.NewError("user handler", "reading csv file", "file must be cvs", http.StatusBadRequest, 5000))
@@ -274,11 +274,11 @@ func (h *UserHandler) ReadCsv(ctx echo.Context) error {
 
 	file, fileOpenErr := fileHeader.Open()
 	defer file.Close()
-	CheckError(fileOpenErr)
+	util.CheckError(fileOpenErr)
 
 	csvReader := csv.NewReader(file)
 	data, err := csvReader.ReadAll()
-	CheckError(err)
+	util.CheckError(err)
 	fmt.Println(data)
 
 	//var wg sync.WaitGroup
@@ -293,10 +293,4 @@ func (h *UserHandler) ReadCsv(ctx echo.Context) error {
 	//}()
 	//wg.Wait()
 	return ctx.JSON(http.StatusOK, "File reading. Check console.")
-}
-
-func CheckError(err error) {
-	if err != nil {
-		fmt.Println(err)
-	}
 }
