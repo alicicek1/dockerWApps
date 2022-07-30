@@ -35,9 +35,9 @@ var EnvConfig = map[string]AppConfig{
 		CategoryColName:      "Category",
 		MongoDuration:        5,
 		MaxPageLimit:         100,
-		RabbitUsername:       "admin",
-		RabbitPassword:       "1",
-		RabbitUri:            "localhost:15672",
+		RabbitUsername:       "guest",
+		RabbitPassword:       "guest",
+		RabbitUri:            "localhost:5672",
 		UserDeleteCheckQName: "userDelCheck",
 	},
 	"qa": {
