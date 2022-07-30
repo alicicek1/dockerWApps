@@ -23,6 +23,8 @@ services:
       - "8082:8082"
     environment:
       - "Env=qa"
+    depends_on:
+      - rabbitmq
 
   user_service:
     container_name: user_service
@@ -36,9 +38,19 @@ services:
       - "Env=qa"
     depends_on:
       - mongo
+      - rabbitmq
 
   mongo:
     container_name: mongo
     image: mongo
     ports:
       - "27017:27017"
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - ./rabbitmqConf:/rabbitmqConf

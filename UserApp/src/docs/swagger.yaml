@@ -108,6 +108,18 @@ paths:
       - in: query
         name: sortingField
         type: string
+      - description: username
+        in: query
+        name: username
+        type: string
+      - description: minAge
+        in: query
+        name: minAge
+        type: string
+      - description: maxAge
+        in: query
+        name: maxAge
+        type: string
       produces:
       - application/json
       responses:

@@ -26,8 +26,8 @@ type Ticket struct {
 	Attachments    []Attachment `json:"attachments,omitempty" bson:"attachments,omitempty"`
 	Answers        []Answer     `json:"answers,omitempty" bson:"answers,omitempty"`
 	Id             string       `json:"_id" bson:"_id,omitempty"`
-	Subject        string       `json:"subject,omitempty" bson:"subject"`
-	Body           string       `json:"body,omitempty" bson:"body"`
+	Subject        string       `json:"subject,omitempty" bson:"subject,omitempty"`
+	Body           string       `json:"body,omitempty" bson:"body,omitempty"`
 	CreatedBy      string       `json:"createdBy" bson:"createdBy,omitempty"`
 	CreatedAt      time.Time    `json:"createdAt" bson:"createdAt,omitempty"`
 	UpdatedAt      time.Time    `json:"updatedAt" bson:"updatedAt,omitempty"`
@@ -41,7 +41,6 @@ type TicketPostRequestModel struct {
 	Answers        []Answer     `json:"answers,omitempty"`
 	Subject        string       `json:"subject,omitempty"`
 	Body           string       `json:"body,omitempty"`
-	CreatedBy      string       `json:"createdBy,omitempty"`
 	LastAnsweredAt time.Time    `json:"lastAnsweredAt,omitempty"`
 	Status         byte         `json:"status,omitempty,"`
 }

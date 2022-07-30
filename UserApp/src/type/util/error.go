@@ -3,6 +3,7 @@ package util
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
+	"log"
 	"net/http"
 )
 
@@ -140,4 +141,10 @@ func NewErrorStatusCodeMaps() map[error]int {
 	var errorStatusCodeMaps = make(map[error]int)
 	errorStatusCodeMaps[ErrDocumentNotFound] = http.StatusNotFound
 	return errorStatusCodeMaps
+}
+
+func FailOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
 }

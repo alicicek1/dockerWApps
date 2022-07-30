@@ -7,8 +7,10 @@ import (
 	"TicketApp/src/repository"
 	"TicketApp/src/service"
 	"TicketApp/src/type/util"
+	"TicketApp/src/type/util/rabbitmq"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rabbitmq/amqp091-go"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
 	"net/http"
@@ -29,18 +31,21 @@ import (
 // @host user.swagger.io
 // @BasePath /api/tickets
 func main() {
-	mCfg := ticketConfig.NewMongoConfig()
+	mCfg := ticketConfig.NewAppConfig()
 	client, _, cancel, cfg := mCfg.ConnectDatabase()
 	defer cancel()
 
-	e := echo.New()
+	channel, userDeleteCheckQueue := OpenRabbitConnection(cfg)
 
-	userClient := util.Client{BaseUrl: "http://localhost:8083/api/users/"}
-	categoryClient := util.Client{BaseUrl: "http://localhost:8081/api/categories/"}
+	e := echo.New()
+	e.Use(AuthorizationMiddleware)
+
+	userClient := util.Client{BaseUrl: "http://user_service:8083/api/users/"}
+	categoryClient := util.Client{BaseUrl: "http://category_service:8081/api/categories/"}
 
 	ticketCollection := mCfg.GetCollection(client, cfg.TicketColName)
 	ticketRepository := repository.NewTicketRepository(ticketCollection)
-	ticketService := service.NewTicketService(ticketRepository, userClient, categoryClient)
+	ticketService := service.NewTicketService(ticketRepository, userClient, categoryClient, channel, userDeleteCheckQueue)
 	ticketHandler := handler.NewTicketHandler(ticketService, cfg)
 
 	Route(e, ticketHandler)
@@ -49,6 +54,20 @@ func main() {
 	log.Fatal(e.Start(":8082"))
 }
 
+func OpenRabbitConnection(cfg *ticketConfig.AppConfig) (*amqp091.Channel, amqp091.Queue) {
+	conStr := cfg.GetRabbitMqDialConnectionUri()
+
+	conn := rabbitmq.Connect(conStr)
+	//defer conn.Close()
+
+	channel := rabbitmq.OpenChannel(conn)
+	//defer channel.Close()
+
+	qName := cfg.UserDeleteCheckQName
+	userDeleteCheckQueue := rabbitmq.DeclareAQueue(channel, qName)
+
+	return channel, userDeleteCheckQueue
+}
 func Route(e *echo.Echo, ticketHandler handler.TicketHandler) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
@@ -57,7 +76,26 @@ func Route(e *echo.Echo, ticketHandler handler.TicketHandler) {
 
 	ticketGroup := e.Group("/api/tickets")
 	ticketGroup.GET("/:id", ticketHandler.TicketGetById)
+	ticketGroup.GET("/getCountByCreatedId/:id", ticketHandler.GetCountByCreatedId)
 	ticketGroup.GET("", ticketHandler.TicketGetAll)
 	ticketGroup.POST("", ticketHandler.TicketInsert)
 	ticketGroup.DELETE("/:id", ticketHandler.TicketDeleteById)
+}
+
+func AuthorizationMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		if c.Request().Method == http.MethodPost {
+			token := c.Request().Header.Get("Authorization")
+			if token == "" {
+				return c.JSON(http.StatusUnauthorized, util.PostRequestsMustHaveATokenHeader)
+			} else {
+				userId := util.DecodeTokenReturnsUserId(token)
+				if userId == "" {
+					return c.JSON(http.StatusUnauthorized, util.TokenIsUnauthorized)
+
+				}
+			}
+		}
+		return next(c)
+	}
 }

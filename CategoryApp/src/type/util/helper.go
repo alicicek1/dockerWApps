@@ -3,6 +3,7 @@ package util
 import (
 	categoryType "CategoryApp/src/type"
 	"fmt"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -158,4 +159,9 @@ func ValidateForUserHandlerId(id string) *Error {
 		return PathVariableIsNotValid.ModifyApplicationName("category handler").ModifyErrorCode(4051)
 	}
 	return nil
+}
+
+type Claims struct {
+	UserId string `json:"userId"`
+	jwt.StandardClaims
 }

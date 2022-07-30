@@ -58,6 +58,12 @@ const docTemplate = `{
                         "type": "string",
                         "name": "sortingField",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "categoryId",
+                        "name": "categoryId",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -108,6 +114,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/entity.TicketPostRequestModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -115,6 +128,56 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/util.PostResponseModel"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/util.Error"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/util.Error"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/util.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tickets/getCountByCreatedId/{id}": {
+            "get": {
+                "description": "Gets count by created id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tickets"
+                ],
+                "summary": "Gets count by created id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "integer"
                         }
                     },
                     "400": {
@@ -335,9 +398,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "categoryId": {
-                    "type": "string"
-                },
-                "createdBy": {
                     "type": "string"
                 },
                 "lastAnsweredAt": {

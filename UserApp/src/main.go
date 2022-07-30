@@ -6,8 +6,13 @@ import (
 	userHandler "UserApp/src/handler"
 	userRepository "UserApp/src/repository"
 	userService "UserApp/src/service"
+	_ "UserApp/src/type/util/client"
+	client2 "UserApp/src/type/util/client"
+	"UserApp/src/type/util/rabbitmq"
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/rabbitmq/amqp091-go"
 	echoSwagger "github.com/swaggo/echo-swagger"
 	"log"
 	"net/http"
@@ -28,16 +33,19 @@ import (
 // @host user.swagger.io
 // @BasePath /api/users
 func main() {
-	mCfg := userConfig.NewMongoConfig()
+	mCfg := userConfig.NewAppConfig()
 	client, _, cancel, cfg := mCfg.ConnectDatabase()
 	defer cancel()
+
+	ticketClient := client2.Client{BaseUrl: "http://ticket_service:8082/api/tickets/"}
+	channel, userDeleteCheckQueue := OpenRabbitConnection(cfg)
 
 	e := echo.New()
 	//e.HTTPErrorHandler = util.NewHttpErrorHandler(util.NewErrorStatusCodeMaps()).Handler
 
 	userCollection := mCfg.GetCollection(client, cfg.UserColName)
 	userRepository := userRepository.NewUserRepository(userCollection)
-	userService := userService.NewUserService(userRepository)
+	userService := userService.NewUserService(userRepository, channel, userDeleteCheckQueue, ticketClient)
 	userHandler := userHandler.NewUserHandler(userService, cfg)
 
 	Route(e, userHandler)
@@ -45,6 +53,21 @@ func main() {
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	log.Fatal(e.Start(":8083"))
 
+}
+
+func OpenRabbitConnection(cfg *userConfig.AppConfig) (*amqp091.Channel, amqp091.Queue) {
+	conStr := userConfig.GetRabbitMqDialConnectionUri(cfg)
+	fmt.Println("conStr->", conStr)
+	conn := rabbitmq.Connect(conStr)
+	//defer conn.Close()
+
+	channel := rabbitmq.OpenChannel(conn)
+	//defer channel.Close()
+
+	qName := cfg.UserDeleteCheckQName
+	userDeleteCheckQueue := rabbitmq.DeclareAQueue(channel, qName)
+
+	return channel, userDeleteCheckQueue
 }
 
 func Route(e *echo.Echo, userHandler userHandler.UserHandler) {

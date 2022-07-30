@@ -47,7 +47,7 @@ func (h *UserHandler) UserGetById(ctx echo.Context) error {
 
 	user, errSrv := h.userService.UserServiceGetById(id)
 	if errSrv != nil || user == nil {
-		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("user handler").ModifyErrorCode(4010))
+		return ctx.JSON(http.StatusNotFound, errSrv)
 	}
 
 	return ctx.JSON(http.StatusOK, user)
@@ -73,22 +73,15 @@ func (h *UserHandler) UserUpsert(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, util.InvalidBody.ModifyApplicationName("user handler").ModifyErrorCode(4012))
 	}
-	user := userEntity.User{Username: userPostRequestModel.Username,
-		Password: userPostRequestModel.Password,
-		Email:    userPostRequestModel.Email,
-		Type:     userPostRequestModel.Type,
-		Age:      userPostRequestModel.Age,
-	}
 
 	id := ctx.QueryParam("id")
 	if id != "" {
 		if !util.IsValidUUID(id) {
 			return ctx.JSON(http.StatusBadRequest, util.PathVariableIsNotValid.ModifyApplicationName("user handler").ModifyOperation("POST").ModifyErrorCode(4011))
 		}
-		user.Id = id
 	}
 
-	res, errSrv := h.userService.UserServiceInsert(user)
+	res, errSrv := h.userService.UserServiceInsert(userPostRequestModel, id)
 	if errSrv != nil {
 		return ctx.JSON(errSrv.StatusCode, errSrv)
 	}
@@ -129,6 +122,9 @@ func (h *UserHandler) UserDeleteById(ctx echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param filter query util.Filter true "filter"
+// @Param username query string false "username"
+// @Param minAge query string false "minAge"
+// @Param maxAge query string false "maxAge"
 // @Success 200 {object} util.GetAllResponseType
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error

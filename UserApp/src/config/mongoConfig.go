@@ -11,50 +11,66 @@ import (
 )
 
 type AppConfig struct {
-	Env             string
-	MongoClientUri  string
-	DBName          string
-	UserColName     string
-	TicketColName   string
-	CategoryColName string
-	MongoDuration   int16
-	MaxPageLimit    int
+	Env                  string
+	MongoClientUri       string
+	DBName               string
+	UserColName          string
+	TicketColName        string
+	CategoryColName      string
+	MongoDuration        int16
+	MaxPageLimit         int
+	RabbitUsername       string
+	RabbitPassword       string
+	RabbitUri            string
+	UserDeleteCheckQName string
 }
 
 var EnvConfig = map[string]AppConfig{
 	"local": {
-		Env:             "local",
-		MongoClientUri:  "mongodb://localhost:27017",
-		DBName:          "TicketApp",
-		UserColName:     "USer",
-		TicketColName:   "Ticket",
-		CategoryColName: "Category",
-		MongoDuration:   5,
-		MaxPageLimit:    100,
+		Env:                  "local",
+		MongoClientUri:       "mongodb://localhost:27017",
+		DBName:               "TicketApp",
+		UserColName:          "User",
+		TicketColName:        "Ticket",
+		CategoryColName:      "Category",
+		MongoDuration:        5,
+		MaxPageLimit:         100,
+		RabbitUsername:       "admin",
+		RabbitPassword:       "1",
+		RabbitUri:            "localhost:15672",
+		UserDeleteCheckQName: "userDelCheck",
 	},
 	"qa": {
-		Env:             "qa",
-		MongoClientUri:  "mongodb://mongo:27017",
-		DBName:          "TicketApp",
-		UserColName:     "User",
-		TicketColName:   "Ticket",
-		CategoryColName: "Category",
-		MongoDuration:   5,
-		MaxPageLimit:    101,
+		Env:                  "qa",
+		MongoClientUri:       "mongodb://mongo:27017",
+		DBName:               "TicketApp",
+		UserColName:          "User",
+		TicketColName:        "Ticket",
+		CategoryColName:      "Category",
+		MongoDuration:        5,
+		MaxPageLimit:         101,
+		RabbitUsername:       "guest",
+		RabbitPassword:       "guest",
+		RabbitUri:            "rabbitmq:15672",
+		UserDeleteCheckQName: "userDelCheck",
 	},
 	"prod": {
-		Env:             "qa",
-		MongoClientUri:  "mongodb+srv://admin:1@cluster0.ymrmq.mongodb.net/?retryWrites=true&w=majority",
-		DBName:          "TicketApp",
-		UserColName:     "User",
-		TicketColName:   "Ticket",
-		CategoryColName: "Category",
-		MongoDuration:   5,
-		MaxPageLimit:    100,
+		Env:                  "qa",
+		MongoClientUri:       "mongodb+srv://admin:1@cluster0.ymrmq.mongodb.net/?retryWrites=true&w=majority",
+		DBName:               "TicketApp",
+		UserColName:          "User",
+		TicketColName:        "Ticket",
+		CategoryColName:      "Category",
+		MongoDuration:        5,
+		MaxPageLimit:         100,
+		RabbitUsername:       "guest",
+		RabbitPassword:       "guest",
+		RabbitUri:            "rabbitmq:15672",
+		UserDeleteCheckQName: "userDelCheck",
 	},
 }
 
-func NewMongoConfig() AppConfig {
+func NewAppConfig() AppConfig {
 	return AppConfig{}
 }
 
@@ -110,4 +126,8 @@ func GetConfigModel() AppConfig {
 	}
 
 	return model
+}
+
+func GetRabbitMqDialConnectionUri(cfg *AppConfig) string {
+	return "amqp://" + cfg.RabbitUsername + ":" + cfg.RabbitPassword + "@" + cfg.RabbitUri + "/"
 }

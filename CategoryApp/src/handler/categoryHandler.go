@@ -1,4 +1,4 @@
-package categoryHandler
+package handler
 
 import (
 	categoryConfig "CategoryApp/src/config"
@@ -43,7 +43,7 @@ func (h *CategoryHandler) CategoryGetById(ctx echo.Context) error {
 
 	category, errSrv := h.categoryService.CategoryServiceGetById(id)
 	if errSrv != nil || category == nil {
-		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("category handler").ModifyErrorCode(4018))
+		return ctx.JSON(http.StatusNotFound, errSrv)
 	}
 
 	return ctx.JSON(http.StatusOK, category)
@@ -56,6 +56,7 @@ func (h *CategoryHandler) CategoryGetById(ctx echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param categoryPostRequestModel body categoryType.CategoryPostRequestModel true "categoryPostRequestModel"
+// @Param Authorization header string true "Authorization"
 // @Success 200 {object} util.PostResponseModel
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error
@@ -68,11 +69,8 @@ func (h *CategoryHandler) CategoryInsert(ctx echo.Context) error {
 	if err != nil {
 		return ctx.JSON(http.StatusBadRequest, util.InvalidBody.ModifyApplicationName("category handler").ModifyErrorCode(4022))
 	}
-	category := categoryType.Category{
-		Name: categoryPostRequestModel.Name,
-	}
 
-	res, errSrv := h.categoryService.CategoryServiceInsert(category)
+	res, errSrv := h.categoryService.CategoryServiceInsert(categoryPostRequestModel)
 	if errSrv != nil {
 		return ctx.JSON(errSrv.StatusCode, errSrv)
 	}
@@ -113,6 +111,7 @@ func (h *CategoryHandler) CategoryDeleteById(ctx echo.Context) error {
 // @Accept json
 // @Produce json
 // @Param filter query util.Filter true "filter"
+// @Param name query string false "name"
 // @Success 200 {object} util.GetAllResponseType
 // @Failure 400 {object} util.Error
 // @Failure 404 {object} util.Error

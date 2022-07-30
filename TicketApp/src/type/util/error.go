@@ -3,6 +3,7 @@ package util
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
+	"log"
 	"net/http"
 )
 
@@ -50,15 +51,17 @@ func (e *Error) ModifyStatusCode(code int) *Error {
 }
 
 var (
-	UnKnownError           = NewError("-", "-", "An unknown error occurred.", 1, -1)
-	PathVariableNotFound   = NewError("", "GET", "Path variable not found.", http.StatusBadRequest, -1)
-	PathVariableIsNotValid = NewError("", "GET", "Path variable is not valid format.", http.StatusBadRequest, -1)
-	NotFound               = NewError("", "GET", "Not found.", http.StatusNotFound, -1)
-	InvalidBody            = NewError("", "UPSERT", "Request body is not valid.", http.StatusBadRequest, -1)
-	UpsertFailed           = NewError("", "UPSERT", "Upsert failed.", http.StatusBadRequest, -1)
-	PostValidation         = NewError("", "POST", "", http.StatusBadRequest, -1)
-	DeleteFailed           = NewError("", "DELETE", "failed delete", http.StatusBadRequest, -1)
-	CountGet               = NewError("", "GET", "count get failed", http.StatusBadRequest, -1)
+	UnKnownError                     = NewError("-", "-", "An unknown error occurred.", 1, -1)
+	PathVariableNotFound             = NewError("", "GET", "Path variable not found.", http.StatusBadRequest, -1)
+	PathVariableIsNotValid           = NewError("", "GET", "Path variable is not valid format.", http.StatusBadRequest, -1)
+	NotFound                         = NewError("", "GET", "Not found.", http.StatusNotFound, -1)
+	InvalidBody                      = NewError("", "UPSERT", "Request body is not valid.", http.StatusBadRequest, -1)
+	UpsertFailed                     = NewError("", "UPSERT", "Upsert failed.", http.StatusBadRequest, -1)
+	PostValidation                   = NewError("", "POST", "", http.StatusBadRequest, -1)
+	DeleteFailed                     = NewError("", "DELETE", "failed delete", http.StatusBadRequest, -1)
+	CountGet                         = NewError("", "GET", "count get failed", http.StatusBadRequest, -1)
+	PostRequestsMustHaveATokenHeader = NewError("", "POST", "Post requests must have a token header", http.StatusBadRequest, -1)
+	TokenIsUnauthorized              = NewError("", "POST", "Token is unauthorized.", http.StatusUnauthorized, -1)
 )
 
 type (
@@ -140,4 +143,10 @@ func NewErrorStatusCodeMaps() map[error]int {
 	var errorStatusCodeMaps = make(map[error]int)
 	errorStatusCodeMaps[ErrDocumentNotFound] = http.StatusNotFound
 	return errorStatusCodeMaps
+}
+
+func FailOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
 }

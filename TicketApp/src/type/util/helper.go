@@ -3,6 +3,7 @@ package util
 import (
 	entity2 "TicketApp/src/type/entity"
 	"fmt"
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,19 +15,19 @@ import (
 func CheckTicketModel(ticket entity2.Ticket, userClient Client, categoryClient Client) (bool, *Error) {
 	_, errValidation := CheckIfCreatorExist(userClient, ticket.CreatedBy)
 	if errValidation != nil {
-		return false, errValidation
+		return false, errValidation.ModifyApplicationName("user client")
 	}
 
 	_, errValidation = CheckIfCategoryExist(categoryClient, ticket.CategoryId)
 	if errValidation != nil {
-		return false, errValidation
+		return false, errValidation.ModifyApplicationName("category client")
 	}
 
 	return true, nil
 }
 
 func CheckIfCategoryExist(client Client, id string) (bool, *Error) {
-	path := client.BaseUrl + "isExist/" + id
+	path := "isExist/" + id
 	resp, err := client.Get(path, client.BaseHeaders)
 	if err != nil {
 		return false, err
@@ -173,4 +174,17 @@ func ValidateForUserHandlerId(id string) *Error {
 		return PathVariableIsNotValid.ModifyApplicationName("ticket handler").ModifyErrorCode(4019)
 	}
 	return nil
+}
+
+func DecodeTokenReturnsUserId(tokenString string) string {
+	claims := jwt.MapClaims{}
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("my_secret_key"), nil
+	})
+
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprint(claims["userId"])
 }

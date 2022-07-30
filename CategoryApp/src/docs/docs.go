@@ -58,6 +58,12 @@ const docTemplate = `{
                         "type": "string",
                         "name": "sortingField",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "name",
+                        "name": "name",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -108,6 +114,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/categoryType.CategoryPostRequestModel"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {

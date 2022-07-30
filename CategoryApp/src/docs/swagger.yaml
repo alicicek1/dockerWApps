@@ -78,6 +78,10 @@ paths:
       - in: query
         name: sortingField
         type: string
+      - description: name
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -111,6 +115,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/categoryType.CategoryPostRequestModel'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:

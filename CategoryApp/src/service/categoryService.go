@@ -13,7 +13,7 @@ type CategoryServiceType struct {
 }
 
 type CategoryService interface {
-	CategoryServiceInsert(user categoryType.Category) (*util.PostResponseModel, *util.Error)
+	CategoryServiceInsert(category categoryType.CategoryPostRequestModel) (*util.PostResponseModel, *util.Error)
 	CategoryServiceGetById(id string) (*categoryType.Category, *util.Error)
 	CategoryServiceDeleteById(id string) (util.DeleteResponseType, *util.Error)
 	CategoryServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error)
@@ -24,7 +24,12 @@ func NewCategoryService(r categoryRepository.CategoryRepository) CategoryService
 	return CategoryServiceType{CategoryRepository: r}
 }
 
-func (c CategoryServiceType) CategoryServiceInsert(category categoryType.Category) (*util.PostResponseModel, *util.Error) {
+func (c CategoryServiceType) CategoryServiceInsert(categoryPostRequestModel categoryType.CategoryPostRequestModel) (*util.PostResponseModel, *util.Error) {
+
+	category := categoryType.Category{
+		Name: categoryPostRequestModel.Name,
+	}
+
 	if category.Id == "" {
 		isSuccess, err := util.CheckCategoryModel(category)
 		if !isSuccess {
@@ -48,10 +53,10 @@ func (c CategoryServiceType) CategoryServiceGetById(id string) (*categoryType.Ca
 }
 func (c CategoryServiceType) CategoryServiceDeleteById(id string) (util.DeleteResponseType, *util.Error) {
 	result, err := c.CategoryRepository.CategoryRepoDeleteById(id)
-	if err != nil || result.IsSuccess == false {
-		return util.DeleteResponseType{IsSuccess: false}, err
+	if err != nil || !result.IsSuccess {
+		return result, err
 	}
-	return util.DeleteResponseType{IsSuccess: true}, nil
+	return result, nil
 }
 func (c CategoryServiceType) CategoryServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error) {
 	result, err := c.CategoryRepository.CategoryRepositoryGetAll(filter)

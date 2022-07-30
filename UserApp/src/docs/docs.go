@@ -58,6 +58,24 @@ const docTemplate = `{
                         "type": "string",
                         "name": "sortingField",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "minAge",
+                        "name": "minAge",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "maxAge",
+                        "name": "maxAge",
+                        "in": "query"
                     }
                 ],
                 "responses": {

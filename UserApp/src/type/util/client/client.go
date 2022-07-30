@@ -1,6 +1,7 @@
-package util
+package client
 
 import (
+	"UserApp/src/type/util"
 	"encoding/json"
 	"github.com/valyala/fasthttp"
 	"net/http"
@@ -22,7 +23,7 @@ func (c Client) NewClient() *fasthttp.Client {
 	}
 }
 
-func (c Client) Get(additionalPath string, headers map[string]string) (string, *Error) {
+func (c Client) Get(additionalPath string, headers map[string]string) (string, *util.Error) {
 	client := c.NewClient()
 
 	req := fasthttp.AcquireRequest()
@@ -43,7 +44,7 @@ func (c Client) Get(additionalPath string, headers map[string]string) (string, *
 
 	err := client.Do(req, resp)
 	if err != nil {
-		return "false", NewError("Client", "ExistById", err.Error(), resp.StatusCode(), 6050)
+		return "false", util.NewError("Client", "ExistById", err.Error(), resp.StatusCode(), 6050)
 	}
 
 	bodyBytes := resp.Body()
@@ -53,15 +54,15 @@ func (c Client) Get(additionalPath string, headers map[string]string) (string, *
 		return bodyStr, nil
 	}
 
-	error := Error{}
+	error := util.Error{}
 	err = json.Unmarshal(bodyBytes, &error)
 	if err != nil {
-		return "false", NewError("Client", "Unmarshalling", err.Error(), http.StatusBadRequest, 6051)
+		return "false", util.NewError("Client", "Unmarshalling", err.Error(), http.StatusBadRequest, 6051)
 	}
 
-	if error == (Error{}) {
-		return "false", NewError("Client", "ClientError", string(resp.Body()), resp.StatusCode(), 6051)
+	if error == (util.Error{}) {
+		return "false", util.NewError("Client", "ClientError", string(resp.Body()), resp.StatusCode(), 6051)
 	}
 
-	return "false", NewError("Client", "ExistById", error.Description, error.StatusCode, 6051)
+	return "false", util.NewError("Client", "ExistById", error.Description, error.StatusCode, 6051)
 }

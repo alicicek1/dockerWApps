@@ -144,18 +144,18 @@ func CreateFilter(model any, filters string) map[string]interface{} {
 var jwtKey = []byte("my_secret_key")
 
 type Claims struct {
-	Username string `json:"username"`
+	UserId string `json:"userId"`
 	jwt.StandardClaims
 }
 
-func CreateToken(model userEntity.LoginRequestModel) (*userEntity.LoginResponseModel, error) {
+func CreateToken(userId string) (*userEntity.LoginResponseModel, error) {
 	response := userEntity.LoginResponseModel{}
 
-	expirationDate := time.Now().Add(time.Minute * 5)
+	expirationDate := time.Now().Add(time.Minute * 30)
 	response.ExpiresDate = expirationDate
 
 	claims := &Claims{
-		Username: model.Username,
+		UserId: userId,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationDate.Unix(),
 		},
@@ -187,5 +187,21 @@ func ValidateForUserHandlerId(id string) *Error {
 func CheckError(err error) {
 	if err != nil {
 		fmt.Println(err)
+	}
+}
+
+func DecodeToken(tokenString string) {
+	//tokenString := "<YOUR TOKEN STRING>"
+	claims := jwt.MapClaims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte("<YOUR VERIFICATION KEY>"), nil
+	})
+	if err != nil {
+		// ... error handling
+	}
+	fmt.Println(token)
+	// do something with decoded claims
+	for key, val := range claims {
+		fmt.Printf("Key: %v, value: %v\n", key, val)
 	}
 }

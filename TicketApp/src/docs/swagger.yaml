@@ -65,8 +65,6 @@ definitions:
         type: string
       categoryId:
         type: string
-      createdBy:
-        type: string
       lastAnsweredAt:
         type: string
       status:
@@ -136,6 +134,10 @@ paths:
       - in: query
         name: sortingField
         type: string
+      - description: categoryId
+        in: query
+        name: categoryId
+        type: string
       produces:
       - application/json
       responses:
@@ -169,6 +171,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/entity.TicketPostRequestModel'
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -254,6 +261,39 @@ paths:
           schema:
             $ref: '#/definitions/util.Error'
       summary: Show a ticket
+      tags:
+      - tickets
+  /api/tickets/getCountByCreatedId/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Gets count by created id
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/util.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/util.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/util.Error'
+      summary: Gets count by created id
       tags:
       - tickets
 swagger: "2.0"

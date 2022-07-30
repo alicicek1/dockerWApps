@@ -3,7 +3,7 @@ package main
 import (
 	categoryConfig "CategoryApp/src/config"
 	_ "CategoryApp/src/docs"
-	categoryHandler "CategoryApp/src/handler"
+	"CategoryApp/src/handler"
 	categoryRepository "CategoryApp/src/repository"
 	categoryService "CategoryApp/src/service"
 	"github.com/labstack/echo/v4"
@@ -37,7 +37,10 @@ func main() {
 	categoryCollection := mCfg.GetCollection(client, cfg.CategoryColName)
 	categoryRepository := categoryRepository.NewCategoryRepository(categoryCollection)
 	categoryService := categoryService.NewCategoryService(categoryRepository)
-	categoryHandler := categoryHandler.NewCategoryHandler(categoryService, cfg)
+	categoryHandler := handler.NewCategoryHandler(categoryService, cfg)
+
+	healthCheckHandler := handler.NewHealthCheckHandler()
+	e.GET("/healthCheck", healthCheckHandler.HealthCheck)
 
 	Route(e, categoryHandler)
 
@@ -46,7 +49,7 @@ func main() {
 
 }
 
-func Route(e *echo.Echo, categoryHandler categoryHandler.CategoryHandler) {
+func Route(e *echo.Echo, categoryHandler handler.CategoryHandler) {
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
@@ -58,4 +61,5 @@ func Route(e *echo.Echo, categoryHandler categoryHandler.CategoryHandler) {
 	categoryGroup.POST("", categoryHandler.CategoryInsert)
 	categoryGroup.DELETE("/:id", categoryHandler.CategoryDeleteById)
 	categoryGroup.GET("/isExist/:id", categoryHandler.CategoryIfExistById)
+
 }
