@@ -51,7 +51,7 @@ var EnvConfig = map[string]AppConfig{
 		MaxPageLimit:         101,
 		RabbitUsername:       "guest",
 		RabbitPassword:       "guest",
-		RabbitUri:            "rabbitmq:15672",
+		RabbitUri:            "rabbitmq:5672",
 		UserDeleteCheckQName: "userDelCheck",
 	},
 	"prod": {
@@ -65,7 +65,7 @@ var EnvConfig = map[string]AppConfig{
 		MaxPageLimit:         100,
 		RabbitUsername:       "guest",
 		RabbitPassword:       "guest",
-		RabbitUri:            "rabbitmq:15672",
+		RabbitUri:            "rabbitmq:5672",
 		UserDeleteCheckQName: "userDelCheck",
 	},
 }
