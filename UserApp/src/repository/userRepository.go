@@ -103,7 +103,7 @@ func (u UserRepositoryType) UserRepositoryGetAll(filter util.Filter) (*util.GetA
 		ApplicationName: "user repository",
 		Operation:       "GET",
 		Description:     "There is an error occurred in channels and could read the values.",
-		StatusCode:      http.StatusBadRequest, // 500
+		StatusCode:      http.StatusInternalServerError,
 		ErrorCode:       3055,
 	}
 }
