@@ -176,7 +176,7 @@ func (h *UserHandler) UserGetAll(ctx echo.Context) error {
 		return ctx.JSON(err.StatusCode, err)
 	}
 
-	if res.Models == nil {
+	if res.Models == nil || res.RowCount == 0 {
 		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("user handler").ModifyErrorCode(5001))
 	}
 	ctx.Response().Header().Add("x-total-count", strconv.FormatInt(res.RowCount, 10))

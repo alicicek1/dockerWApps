@@ -138,7 +138,7 @@ func (h *CategoryHandler) CategoryGetAll(ctx echo.Context) error {
 		return ctx.JSON(errSrv.StatusCode, errSrv)
 	}
 
-	if categories == nil {
+	if categories == nil || categories.RowCount == 0 {
 		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("category handler").ModifyErrorCode(5000))
 	}
 	return ctx.JSON(http.StatusOK, categories)

@@ -26,7 +26,6 @@ type TicketService interface {
 	TicketServiceGetById(id string) (*entity.Ticket, *util.Error)
 	TicketServiceDeleteById(id string) (util.DeleteResponseType, *util.Error)
 	TicketServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error)
-	TicketServiceGetCountByCreatedId(id string) (int64, *util.Error)
 }
 
 func NewTicketService(r repository.TicketRepository, userClient util.Client, categoryClient util.Client, channel *amqp091.Channel, queue amqp091.Queue) TicketServiceType {
@@ -79,15 +78,6 @@ func (t TicketServiceType) TicketServiceGetById(id string) (*entity.Ticket, *uti
 	}
 	return result, nil
 }
-
-func (t TicketServiceType) TicketServiceGetCountByCreatedId(id string) (int64, *util.Error) {
-	result, err := t.TicketRepository.TicketRepoGetCountByCreatedId(id)
-	if err != nil {
-		return 0, err
-	}
-	return result, nil
-}
-
 func (t TicketServiceType) CheckUserDeleteQueueForUpdate(channel *amqp091.Channel, queue amqp091.Queue) {
 	msgS := rabbitmq.ConsumeMessage(channel, queue)
 	for msg := range msgS {
@@ -110,8 +100,6 @@ func (t TicketServiceType) TicketServiceDeleteById(id string) (util.DeleteRespon
 	return result, nil
 }
 func (t TicketServiceType) TicketServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error) {
-	go t.CheckUserDeleteQueueForUpdate(t.Channel, t.Queue)
-
 	result, err := t.TicketRepository.TicketRepositoryGetAll(filter)
 	if err != nil {
 		return nil, err

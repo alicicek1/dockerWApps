@@ -145,35 +145,8 @@ func (t *TicketHandler) TicketGetAll(ctx echo.Context) error {
 		return ctx.JSON(err.StatusCode, err)
 	}
 
-	if tickets == nil {
+	if tickets == nil || tickets.RowCount == 0 {
 		return ctx.JSON(http.StatusNotFound, util.NotFound.ModifyApplicationName("user handler").ModifyErrorCode(5001))
 	}
 	return ctx.JSON(http.StatusOK, tickets)
-}
-
-// GetCountByCreatedId godoc
-// @Summary      Gets count by created id
-// @Description  Gets count by created id
-// @Tags         tickets
-// @Accept       json
-// @Produce      json
-// @Param        id   path      string  true  "id"
-// @Success      200  {object}  int64
-// @Failure      400  {object}  util.Error
-// @Failure      404  {object}  util.Error
-// @Failure      500  {object}  util.Error
-// @Router       /api/tickets/getCountByCreatedId/{id} [get]
-func (t *TicketHandler) GetCountByCreatedId(ctx echo.Context) error {
-	id := ctx.Param("id")
-	err := util.ValidateForUserHandlerId(id)
-	if err != nil {
-		return ctx.JSON(err.StatusCode, err)
-	}
-
-	res, errSrv := t.ticketService.TicketServiceGetCountByCreatedId(id)
-	if errSrv != nil {
-		return ctx.JSON(errSrv.StatusCode, errSrv)
-	}
-
-	return ctx.JSON(http.StatusOK, res)
 }

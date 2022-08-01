@@ -37,7 +37,7 @@ func main() {
 	client, _, cancel, cfg := mCfg.ConnectDatabase()
 	defer cancel()
 
-	ticketClient := client2.Client{BaseUrl: "http://ticket_service:8082/api/tickets/"}
+	ticketClient := client2.Client{BaseUrl: "http://" + cfg.TicketContainerName + ":8082/api/tickets/"}
 	channel, userDeleteCheckQueue := OpenRabbitConnection(cfg)
 
 	e := echo.New()

@@ -40,13 +40,15 @@ func main() {
 	e := echo.New()
 	e.Use(AuthorizationMiddleware)
 
-	userClient := util.Client{BaseUrl: "http://user_service:8083/api/users/"}
-	categoryClient := util.Client{BaseUrl: "http://category_service:8081/api/categories/"}
+	userClient := util.Client{BaseUrl: "http://" + cfg.UserContainerName + ":8083/api/users/"}
+	categoryClient := util.Client{BaseUrl: "http://" + cfg.CategoryContainerName + ":8081/api/categories/"}
 
 	ticketCollection := mCfg.GetCollection(client, cfg.TicketColName)
 	ticketRepository := repository.NewTicketRepository(ticketCollection)
 	ticketService := service.NewTicketService(ticketRepository, userClient, categoryClient, channel, userDeleteCheckQueue)
 	ticketHandler := handler.NewTicketHandler(ticketService, cfg)
+
+	go ticketService.CheckUserDeleteQueueForUpdate(ticketService.Channel, ticketService.Queue)
 
 	Route(e, ticketHandler)
 
@@ -76,7 +78,6 @@ func Route(e *echo.Echo, ticketHandler handler.TicketHandler) {
 
 	ticketGroup := e.Group("/api/tickets")
 	ticketGroup.GET("/:id", ticketHandler.TicketGetById)
-	ticketGroup.GET("/getCountByCreatedId/:id", ticketHandler.GetCountByCreatedId)
 	ticketGroup.GET("", ticketHandler.TicketGetAll)
 	ticketGroup.POST("", ticketHandler.TicketInsert)
 	ticketGroup.DELETE("/:id", ticketHandler.TicketDeleteById)

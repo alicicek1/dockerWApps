@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"strings"
 	"time"
 )
 
@@ -25,7 +24,6 @@ type TicketRepository interface {
 	TicketRepoDeleteById(id string) (util.DeleteResponseType, *util.Error)
 	TicketRepositoryGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error)
 	UpdateDeletedTicket(msg string) (interface{}, *util.Error)
-	TicketRepoGetCountByCreatedId(id string) (int64, *util.Error)
 }
 
 func (t TicketRepositoryType) UpdateDeletedTicket(msg string) (interface{}, *util.Error) {
@@ -34,14 +32,14 @@ func (t TicketRepositoryType) UpdateDeletedTicket(msg string) (interface{}, *uti
 
 	opts := options.Update().SetUpsert(true)
 	filter := bson.D{
-		{"createdBy", strings.TrimRight(msg, "\n")},
+		{"createdBy", msg},
 		{"isDeleted", bson.D{
 			{"$exists", false},
 		}},
 	}
 
 	update := bson.D{{"$set", bson.D{{"isDeleted", true}}}}
-	_, err := t.TicketCollection.UpdateOne(ctx, filter, update, opts)
+	_, err := t.TicketCollection.UpdateMany(ctx, filter, update, opts)
 	if err != nil {
 		return nil, util.UpsertFailed.ModifyApplicationName("ticket repository").ModifyErrorCode(4055)
 	}
@@ -57,18 +55,6 @@ func (t TicketRepositoryType) TicketRepoInsert(ticket entity.Ticket) (*util.Post
 		return nil, util.UpsertFailed.ModifyApplicationName("user repository").ModifyErrorCode(4015)
 	}
 	return &util.PostResponseModel{Id: ticket.Id}, nil
-}
-
-func (t TicketRepositoryType) TicketRepoGetCountByCreatedId(id string) (int64, *util.Error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-	defer cancel()
-
-	filter := bson.M{"createdBy": id}
-	if res, err := t.TicketCollection.CountDocuments(ctx, filter); err != nil {
-		return 0, util.NotFound.ModifyApplicationName("ticket repository").ModifyErrorCode(4030)
-	} else {
-		return res, nil
-	}
 }
 
 func (t TicketRepositoryType) TicketRepoGetById(id string) (*entity.Ticket, *util.Error) {

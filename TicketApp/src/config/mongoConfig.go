@@ -11,62 +11,74 @@ import (
 )
 
 type AppConfig struct {
-	Env                  string
-	MongoClientUri       string
-	DBName               string
-	UserColName          string
-	TicketColName        string
-	CategoryColName      string
-	MongoDuration        int16
-	MaxPageLimit         int
-	RabbitUsername       string
-	RabbitPassword       string
-	RabbitUri            string
-	UserDeleteCheckQName string
+	Env                   string
+	MongoClientUri        string
+	DBName                string
+	UserColName           string
+	TicketColName         string
+	CategoryColName       string
+	MongoDuration         int16
+	MaxPageLimit          int
+	RabbitUsername        string
+	RabbitPassword        string
+	RabbitUri             string
+	UserDeleteCheckQName  string
+	CategoryContainerName string
+	TicketContainerName   string
+	UserContainerName     string
 }
 
 var EnvConfig = map[string]AppConfig{
 	"local": {
-		Env:                  "local",
-		MongoClientUri:       "mongodb://localhost:27017",
-		DBName:               "TicketApp",
-		UserColName:          "User",
-		TicketColName:        "Ticket",
-		CategoryColName:      "Category",
-		MongoDuration:        5,
-		MaxPageLimit:         100,
-		RabbitUsername:       "guest",
-		RabbitPassword:       "guest",
-		RabbitUri:            "localhost:5672",
-		UserDeleteCheckQName: "userDelCheck",
+		Env:                   "local",
+		MongoClientUri:        "mongodb://localhost:27017",
+		DBName:                "TicketApp",
+		UserColName:           "User",
+		TicketColName:         "Ticket",
+		CategoryColName:       "Category",
+		MongoDuration:         5,
+		MaxPageLimit:          100,
+		RabbitUsername:        "guest",
+		RabbitPassword:        "guest",
+		RabbitUri:             "localhost:5672",
+		UserDeleteCheckQName:  "userDelCheck",
+		CategoryContainerName: "localhost",
+		TicketContainerName:   "localhost",
+		UserContainerName:     "localhost",
 	},
 	"qa": {
-		Env:                  "qa",
-		MongoClientUri:       "mongodb://mongo:27017",
-		DBName:               "TicketApp",
-		UserColName:          "User",
-		TicketColName:        "Ticket",
-		CategoryColName:      "Category",
-		MongoDuration:        5,
-		MaxPageLimit:         100,
-		RabbitUsername:       "guest",
-		RabbitPassword:       "guest",
-		RabbitUri:            "rabbitmq:5672",
-		UserDeleteCheckQName: "userDelCheck",
+		Env:                   "qa",
+		MongoClientUri:        "mongodb://mongo:27017",
+		DBName:                "TicketApp",
+		UserColName:           "User",
+		TicketColName:         "Ticket",
+		CategoryColName:       "Category",
+		MongoDuration:         5,
+		MaxPageLimit:          100,
+		RabbitUsername:        "guest",
+		RabbitPassword:        "guest",
+		RabbitUri:             "rabbitmq:5672",
+		UserDeleteCheckQName:  "userDelCheck",
+		CategoryContainerName: "category_service",
+		TicketContainerName:   "ticket_service",
+		UserContainerName:     "user_service",
 	},
 	"prod": {
-		Env:                  "qa",
-		MongoClientUri:       "mongodb+srv://admin:1@cluster0.ymrmq.mongodb.net/?retryWrites=true&w=majority",
-		DBName:               "TicketApp",
-		UserColName:          "User",
-		TicketColName:        "Ticket",
-		CategoryColName:      "Category",
-		MongoDuration:        5,
-		MaxPageLimit:         100,
-		RabbitUsername:       "admin",
-		RabbitPassword:       "1",
-		RabbitUri:            "rabbitmq:5672",
-		UserDeleteCheckQName: "userDelCheck",
+		Env:                   "qa",
+		MongoClientUri:        "mongodb+srv://admin:1@cluster0.ymrmq.mongodb.net/?retryWrites=true&w=majority",
+		DBName:                "TicketApp",
+		UserColName:           "User",
+		TicketColName:         "Ticket",
+		CategoryColName:       "Category",
+		MongoDuration:         5,
+		MaxPageLimit:          100,
+		RabbitUsername:        "admin",
+		RabbitPassword:        "1",
+		RabbitUri:             "rabbitmq:5672",
+		UserDeleteCheckQName:  "userDelCheck",
+		CategoryContainerName: "category_service",
+		TicketContainerName:   "ticket_service",
+		UserContainerName:     "user_service",
 	},
 }
 

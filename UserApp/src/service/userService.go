@@ -10,8 +10,6 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/rabbitmq/amqp091-go"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -88,29 +86,12 @@ func (u UserServiceType) UserServiceDeleteById(id string) (util.DeleteResponseTy
 }
 
 func CheckUserTicketCountAndPublishToQueue(c client.Client, id string, channel *amqp091.Channel, queue amqp091.Queue) {
-	count := GetUserTicketCounts(c, id)
-	for i := 0; i < count; i++ {
-		val := rabbitmq.PublishToQueue(channel, queue, id)
-		if !val {
-			log.Error("An error occurred while publishing message", id)
-		}
+	val := rabbitmq.PublishToQueue(channel, queue, id)
+	if !val {
+		log.Error("An error occurred while publishing message", id)
 	}
 }
 
-func GetUserTicketCounts(c client.Client, id string) int {
-	path := "getCountByCreatedId/" + id
-	resp, err := c.Get(path, nil)
-	if err != nil {
-		return 0
-	}
-
-	resp = strings.Trim(resp, "\n")
-	if res, e := strconv.Atoi(resp); e != nil {
-		return 0
-	} else {
-		return res
-	}
-}
 func (u UserServiceType) UserServiceGetAll(filter util.Filter) (*util.GetAllResponseType, *util.Error) {
 	result, err := u.UserRepository.UserRepositoryGetAll(filter)
 	if err != nil {
