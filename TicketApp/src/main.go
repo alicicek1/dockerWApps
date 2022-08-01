@@ -48,7 +48,7 @@ func main() {
 	ticketService := service.NewTicketService(ticketRepository, userClient, categoryClient, channel, userDeleteCheckQueue)
 	ticketHandler := handler.NewTicketHandler(ticketService, cfg)
 
-	go ticketService.CheckUserDeleteQueueForUpdate(ticketService.Channel, ticketService.Queue)
+	go ticketService.CheckUserDeleteQueueForUpdate(channel, userDeleteCheckQueue)
 
 	Route(e, ticketHandler)
 
